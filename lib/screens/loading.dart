@@ -1,7 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import '../constants.dart';
+import 'package:swole/constants.dart';
 
 class Loading extends StatefulWidget {
   const Loading({super.key});
@@ -18,10 +16,13 @@ class _LoadingState extends State<Loading> {
   }
 
   Future<void> _loadData() async {
+    await Future.delayed(const Duration(seconds: 1));
     // print(FirebaseAuth.instance.currentUser);
-    // if (isLoggedIn()) {
-    Navigator.pushNamed(context, '/home');
-    // }
+    if (isLoggedIn() && mounted) {
+      Navigator.pushNamed(context, '/home');
+    } else {
+      Navigator.pushNamed(context, '/login');
+    }
   }
 
   @override

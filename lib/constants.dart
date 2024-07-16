@@ -7,8 +7,16 @@ const appDescription = 'Strengths, Weaknesses, Opportunities and Limitations';
 
 //auth
 bool isLoggedIn() {
-  print(FirebaseAuth.instance.currentUser);
   return FirebaseAuth.instance.currentUser != null;
+}
+
+User? getUser() {
+  return FirebaseAuth.instance.currentUser;
+}
+
+void logout(BuildContext context) {
+  FirebaseAuth.instance.signOut();
+  Navigator.pushNamed(context, '/');
 }
 
 //colors

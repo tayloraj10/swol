@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "387210204707",
+    "firebase_url": "https://swole-1190b.firebaseio.com",
+    "project_id": "swole-1190b",
+    "storage_bucket": "swole-1190b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:387210204707:android:b2e07f8e5aad3a6ea0c396",
+        "android_client_info": {
+          "package_name": "com.example.swole"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "387210204707-pnh4psv16vnnvs56a7pbb28n4nf03hpe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGhRrlcf-sN4RoknU1C_Avr5Dvn0IZBE4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "387210204707-mi6qa1lmk53k2b0tsn116cdgiq7d3rpg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

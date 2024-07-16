@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:swole/components/user_chip.dart';
 import 'package:swole/constants.dart';
 
 class NavBar extends StatelessWidget implements PreferredSizeWidget {
@@ -20,6 +21,7 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
           style: largeTextStyle,
         ),
       ),
+      actions: isLoggedIn() ? [const UserChip()] : null,
     );
   }
 }
