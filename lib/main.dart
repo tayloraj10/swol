@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:swole/constants.dart';
 import 'package:swole/firebase_options.dart';
+import 'package:swole/screens/calisthenics.dart';
 import 'package:swole/screens/home.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swole/screens/loading.dart';
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const Loading(),
         '/home': (context) => const HomeScreen(),
         '/login': (context) => const Login(),
+        '/calisthenics': (context) => const CalisthenicsHome(),
       },
     );
   }

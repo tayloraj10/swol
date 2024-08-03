@@ -32,6 +32,11 @@ const largeTextStyle = TextStyle(
   letterSpacing: 1,
 );
 
+const mediumTextStyle = TextStyle(
+  fontSize: 18,
+  fontWeight: FontWeight.bold,
+);
+
 const smallTextStyle = TextStyle(
   fontSize: 16,
 );

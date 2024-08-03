@@ -17,9 +17,9 @@ class _LoadingState extends State<Loading> {
 
   Future<void> _loadData() async {
     await Future.delayed(const Duration(seconds: 1));
-    // print(FirebaseAuth.instance.currentUser);
     if (isLoggedIn() && mounted) {
-      Navigator.pushNamed(context, '/home');
+      // Navigator.pushNamed(context, '/home');
+      Navigator.pushNamed(context, '/calisthenics');
     } else {
       Navigator.pushNamed(context, '/login');
     }

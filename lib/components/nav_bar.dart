@@ -13,12 +13,18 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       backgroundColor: primaryColor,
       automaticallyImplyLeading: false,
-      title: const Tooltip(
+      title: Tooltip(
         textStyle: smallTextStyle,
         message: appDescription,
-        child: Text(
-          appName,
-          style: largeTextStyle,
+        child: GestureDetector(
+          onTap: () => {
+            if (ModalRoute.of(context)?.settings.name != '/home')
+              Navigator.pushNamed(context, '/home')
+          },
+          child: const Text(
+            appName,
+            style: largeTextStyle,
+          ),
         ),
       ),
       actions: isLoggedIn() ? [const UserChip()] : null,

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
+import 'package:swole/components/nav_bar.dart';
 import 'package:swole/firebase_options.dart';
 
 class Login extends StatelessWidget {
@@ -9,6 +10,7 @@ class Login extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: const NavBar(),
       body: SignInScreen(
         auth: FirebaseAuth.instance,
         providerConfigs: const [
