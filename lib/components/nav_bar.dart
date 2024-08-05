@@ -3,7 +3,8 @@ import 'package:swole/components/user_chip.dart';
 import 'package:swole/constants.dart';
 
 class NavBar extends StatelessWidget implements PreferredSizeWidget {
-  const NavBar({super.key});
+  final Color color;
+  const NavBar({super.key, this.color = Colors.black});
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
@@ -11,7 +12,7 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      backgroundColor: primaryColor,
+      backgroundColor: color,
       automaticallyImplyLeading: false,
       title: Tooltip(
         textStyle: smallTextStyle,

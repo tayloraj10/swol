@@ -14,7 +14,9 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: const NavBar(),
+        appBar: const NavBar(
+          color: Colors.blue,
+        ),
         body: Padding(
           padding: const EdgeInsets.all(10),
           child: Column(

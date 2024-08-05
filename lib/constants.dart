@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 //global
-const appName = 'SWOL';
+const appName = 'SWOLE';
 const appDescription = 'Strengths, Weaknesses, Opportunities and Limitations';
 
 //auth

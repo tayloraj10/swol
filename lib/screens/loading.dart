@@ -19,7 +19,7 @@ class _LoadingState extends State<Loading> {
     await Future.delayed(const Duration(seconds: 1));
     if (isLoggedIn() && mounted) {
       // Navigator.pushNamed(context, '/home');
-      Navigator.pushNamed(context, '/calisthenics');
+      Navigator.pushNamed(context, '/habits');
     } else {
       Navigator.pushNamed(context, '/login');
     }

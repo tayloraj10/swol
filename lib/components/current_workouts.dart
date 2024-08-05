@@ -85,7 +85,7 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
               return Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  color: Colors.red,
+                  color: Colors.blue,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -134,78 +134,83 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
                                 set['reps'] == 0 ? "" : set['reps'].toString();
                             repController.selection = TextSelection.collapsed(
                                 offset: repController.text.length);
-                            return SizedBox(
-                              width: 60,
-                              child: Stack(
-                                children: [
-                                  Badge(
-                                    position: BadgePosition.bottomEnd(),
-                                    badgeContent: GestureDetector(
-                                      onTap: (() async => {
-                                            await deleteRep(
-                                              id: exercise.id,
-                                              index: index,
-                                            ),
-                                          }),
-                                      child: const Icon(
-                                        Icons.close,
-                                        size: 16,
-                                      ),
-                                    ),
-                                    child: TextField(
-                                      autofocus: true,
-                                      onChanged: (String newvalue) async => {
-                                        await updateRep(
-                                          id: exercise.id,
-                                          index: index,
-                                          newValue: newvalue,
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
+                              child: SizedBox(
+                                width: 60,
+                                child: Stack(
+                                  children: [
+                                    Badge(
+                                      position: BadgePosition.bottomEnd(),
+                                      badgeContent: GestureDetector(
+                                        onTap: (() async => {
+                                              await deleteRep(
+                                                id: exercise.id,
+                                                index: index,
+                                              ),
+                                            }),
+                                        child: const Icon(
+                                          Icons.close,
+                                          size: 16,
                                         ),
-                                      },
-                                      controller: repController,
-                                      keyboardType: TextInputType.number,
-                                      inputFormatters: <TextInputFormatter>[
-                                        FilteringTextInputFormatter.digitsOnly,
-                                      ],
-                                      maxLength: 4,
-                                      cursorColor: Colors.black,
-                                      textAlign: TextAlign.center,
-                                      decoration: InputDecoration(
-                                        floatingLabelAlignment:
-                                            FloatingLabelAlignment.start,
-                                        floatingLabelBehavior:
-                                            FloatingLabelBehavior.always,
-                                        floatingLabelStyle: const TextStyle(
-                                            color: Colors.white),
-                                        border: const OutlineInputBorder(),
-                                        focusedBorder:
-                                            const OutlineInputBorder(),
-                                        focusColor: Colors.white,
-                                        focusedErrorBorder:
-                                            const OutlineInputBorder(),
-                                        enabledBorder:
-                                            const OutlineInputBorder(),
-                                        labelText: 'Set ${index + 1}',
-                                        counterText: '',
+                                      ),
+                                      child: TextField(
+                                        autofocus: true,
+                                        onChanged: (String newvalue) async => {
+                                          await updateRep(
+                                            id: exercise.id,
+                                            index: index,
+                                            newValue: newvalue,
+                                          ),
+                                        },
+                                        controller: repController,
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter
+                                              .digitsOnly,
+                                        ],
+                                        maxLength: 4,
+                                        cursorColor: Colors.black,
+                                        textAlign: TextAlign.center,
+                                        decoration: InputDecoration(
+                                          floatingLabelAlignment:
+                                              FloatingLabelAlignment.start,
+                                          floatingLabelBehavior:
+                                              FloatingLabelBehavior.always,
+                                          floatingLabelStyle: const TextStyle(
+                                              color: Colors.white),
+                                          border: const OutlineInputBorder(),
+                                          focusedBorder:
+                                              const OutlineInputBorder(),
+                                          focusColor: Colors.white,
+                                          focusedErrorBorder:
+                                              const OutlineInputBorder(),
+                                          enabledBorder:
+                                              const OutlineInputBorder(),
+                                          labelText: 'Set ${index + 1}',
+                                          counterText: '',
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  // Positioned(
-                                  //   top: 1,
-                                  //   right: 0,
-                                  //   child: GestureDetector(
-                                  //     onTap: (() async => {
-                                  //           await deleteRep(
-                                  //             id: exercise.id,
-                                  //             index: index,
-                                  //           ),
-                                  //         }),
-                                  //     child: const Icon(
-                                  //       Icons.close,
-                                  //       size: 16,
-                                  //     ),
-                                  //   ),
-                                  // ),
-                                ],
+                                    // Positioned(
+                                    //   top: 1,
+                                    //   right: 0,
+                                    //   child: GestureDetector(
+                                    //     onTap: (() async => {
+                                    //           await deleteRep(
+                                    //             id: exercise.id,
+                                    //             index: index,
+                                    //           ),
+                                    //         }),
+                                    //     child: const Icon(
+                                    //       Icons.close,
+                                    //       size: 16,
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                  ],
+                                ),
                               ),
                             );
                           }).toList(),

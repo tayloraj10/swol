@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:swole/constants.dart';
 import 'package:swole/screens/calisthenics.dart';
+import 'package:swole/screens/habits.dart';
 
 class PageButton extends StatelessWidget {
   final String text;
   final Color color;
   const PageButton({super.key, required this.text, required this.color});
+
+  static const Map routeMapping = {
+    'Habit Tracking': '/habits',
+    'Calisthenics': '/calisthenics',
+    'Weight Lifting': '/weights'
+  };
+
+  static const Map pageMapping = {
+    'Habit Tracking': Habits(),
+    'Calisthenics': CalisthenicsHome(),
+    'Weight Lifting': Null
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -13,17 +26,18 @@ class PageButton extends StatelessWidget {
       padding: const EdgeInsets.all(10),
       child: ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: color),
-          onPressed: text != 'Calisthenics'
+          onPressed: text == 'Weight Lifting'
               ? null
               : () => {
                     Navigator.push(
                       // or pushReplacement, if you need that
                       context,
                       QuickRoute(
-                        routeName: '/calisthenics',
-                        page: const CalisthenicsHome(),
+                        routeName: routeMapping[text],
+                        page: pageMapping[text],
                       ),
                     )
+
                     // Navigator.pushNamed(
                     //   context,
                     //   '/calisthenics',
@@ -37,7 +51,7 @@ class PageButton extends StatelessWidget {
                   text,
                   style: largeTextStyle,
                 ),
-                if (text != 'Calisthenics')
+                if (text == 'Weight Lifting')
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
                     child: Text(
