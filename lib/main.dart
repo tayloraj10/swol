@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
             onError: Colors.white,
             background: Colors.white,
             onBackground: Colors.white,
-            surface: Colors.white,
+            surface: Colors.black,
             onSurface: Colors.white),
       ),
       // home: const Loading(),

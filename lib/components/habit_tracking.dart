@@ -84,110 +84,107 @@ class _HabitTrackingState extends State<HabitTracking> {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      child: SingleChildScrollView(
-        child: Center(
-          child: Table(
-            border: const TableBorder(
-                horizontalInside: BorderSide(color: Colors.lightGreenAccent)),
-            defaultVerticalAlignment: TableCellVerticalAlignment.baseline,
-            textBaseline: TextBaseline.ideographic,
-            defaultColumnWidth: const IntrinsicColumnWidth(),
-            children: [
-              const TableRow(children: [
-                Text(
-                  'Category',
-                  style: largeTextStyle,
-                ),
-                SizedBox(
-                  width: 20,
-                  height: 40,
-                ),
-                Text(
-                  'Task',
-                  style: largeTextStyle,
-                ),
-                SizedBox(
-                  width: 20,
-                  height: 40,
-                ),
-                Text(
-                  'Goal',
-                  style: largeTextStyle,
-                ),
-                SizedBox(
-                  width: 20,
-                  height: 40,
-                ),
-                Text(
-                  'Remaining',
-                  style: largeTextStyle,
-                )
-              ]),
-              ...categories.keys.map((category) {
-                return TableRow(
-                  children: [
-                    Text(
-                      category,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Flexible(
+        child: SingleChildScrollView(
+          child: Center(
+            child: Table(
+              border: const TableBorder(
+                  horizontalInside: BorderSide(color: Colors.lightGreenAccent)),
+              defaultVerticalAlignment: TableCellVerticalAlignment.baseline,
+              textBaseline: TextBaseline.ideographic,
+              defaultColumnWidth: const IntrinsicColumnWidth(),
+              children: [
+                const TableRow(children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      'Category',
+                      style: largeTextStyle,
                     ),
-                    const SizedBox(
-                      width: 20,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      'Task',
+                      style: largeTextStyle,
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: DropdownButton<String>(
-                            // hint: const Text('Select Task'),
-                            value: selectedValues[category],
-                            onChanged: (newValue) {
-                              setState(() {
-                                selectedValues[category] = newValue;
-                              });
-                            },
-                            items: ([""] + categories[category]!['tasks'])
-                                .map((task) {
-                              return DropdownMenuItem<String>(
-                                value: task,
-                                child: Text(task),
-                              );
-                            }).toList(),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                    child: Text(
+                      'Goal',
+                      style: largeTextStyle,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                    child: Text(
+                      'Remaining',
+                      style: largeTextStyle,
+                    ),
+                  )
+                ]),
+                ...categories.keys.map((category) {
+                  return TableRow(
+                    children: [
+                      Text(
+                        category,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: DropdownButton<String>(
+                              // hint: const Text('Select Task'),
+                              value: selectedValues[category],
+                              onChanged: (newValue) {
+                                setState(() {
+                                  selectedValues[category] = newValue;
+                                });
+                              },
+                              items: ([""] + categories[category]!['tasks'])
+                                  .map((task) {
+                                return DropdownMenuItem<String>(
+                                  value: task,
+                                  child: Text(task),
+                                );
+                              }).toList(),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          "${categories[category]!['goal']}",
-                          style: mediumTextStyle,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          "${categories[category]!['goal']}",
-                          style: mediumTextStyle,
-                        ),
-                      ],
-                    ),
-                    // const Divider(),
-                  ],
-                );
-              }).toList()
-            ],
+                        ],
+                      ),
+
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            "${categories[category]!['goal']}",
+                            style: mediumTextStyle,
+                          ),
+                        ],
+                      ),
+
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            "${categories[category]!['goal']}",
+                            style: mediumTextStyle,
+                          ),
+                        ],
+                      ),
+                      // const Divider(),
+                    ],
+                  );
+                }).toList()
+              ],
+            ),
           ),
         ),
       ),
