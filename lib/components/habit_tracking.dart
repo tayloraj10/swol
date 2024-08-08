@@ -1,8 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:swole/constants.dart';
 
 class HabitTracking extends StatefulWidget {
-  const HabitTracking({super.key});
+  final DateTime date;
+  const HabitTracking({super.key, required this.date});
 
   @override
   State<HabitTracking> createState() => _HabitTrackingState();
@@ -76,18 +80,90 @@ class _HabitTrackingState extends State<HabitTracking> {
   @override
   void initState() {
     super.initState();
-    // Initialize the selected values with the first item of each category
     categories.forEach((category, tasks) {
       selectedValues[category] = null;
     });
+    getData();
+  }
+
+  @override
+  void didUpdateWidget(covariant HabitTracking oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.date != widget.date) {
+      setState(() {
+        selectedValues = {};
+      });
+      getData();
+    }
+  }
+
+  void getData() {
+    var ref = FirebaseFirestore.instance.collection("habit_tracking");
+    var userID = FirebaseAuth.instance.currentUser!.uid;
+    var formatedDate = DateFormat('yyyy-MM-dd').format(widget.date);
+    var dataRef = ref
+        .where('user_id', isEqualTo: userID)
+        .where("day", isEqualTo: formatedDate);
+    dataRef.get().then((value) => {
+          if (value.docs.isNotEmpty)
+            {updateSelectedValues(value.docs.first.data()['tasks'])}
+        });
+  }
+
+  void updateSelectedValues(Map tasks) {
+    tasks.forEach((key, value) {
+      setState(() {
+        selectedValues[key] = value;
+      });
+    });
+  }
+
+  void sendData() {
+    var ref = FirebaseFirestore.instance.collection("habit_tracking");
+    var userID = FirebaseAuth.instance.currentUser!.uid;
+    var formatedDate = DateFormat('yyyy-MM-dd').format(widget.date);
+
+    var dataRef = ref
+        .where('user_id', isEqualTo: userID)
+        .where("day", isEqualTo: formatedDate);
+    dataRef.get().then((value) => {
+          if (value.docs.isEmpty)
+            {
+              ref.add({
+                "user_id": userID,
+                "date": widget.date,
+                'day': formatedDate,
+                "tasks": buildHabitData()
+              })
+            }
+          else if (value.docs.isNotEmpty)
+            {
+              ref.doc(value.docs.first.id).update({"tasks": buildHabitData()})
+            }
+        });
+  }
+
+  Map<String, String> buildHabitData() {
+    Map<String, String> data = {};
+    categories.forEach((key, value) {
+      if (selectedValues[key] != null) {
+        data[key] = selectedValues[key]!;
+      }
+      if (selectedValues[key] == "" && data[key] != null) {
+        data.remove(key);
+      }
+    });
+    return data;
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Flexible(
+    return Flexible(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
         child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
           child: Center(
             child: Table(
               border: const TableBorder(
@@ -105,7 +181,7 @@ class _HabitTrackingState extends State<HabitTracking> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                     child: Text(
                       'Task',
                       style: largeTextStyle,
@@ -135,29 +211,33 @@ class _HabitTrackingState extends State<HabitTracking> {
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
 
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: DropdownButton<String>(
-                              // hint: const Text('Select Task'),
-                              value: selectedValues[category],
-                              onChanged: (newValue) {
-                                setState(() {
-                                  selectedValues[category] = newValue;
-                                });
-                              },
-                              items: ([""] + categories[category]!['tasks'])
-                                  .map((task) {
-                                return DropdownMenuItem<String>(
-                                  value: task,
-                                  child: Text(task),
-                                );
-                              }).toList(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: DropdownButton<String>(
+                                // hint: const Text('Select Task'),
+                                value: selectedValues[category],
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    selectedValues[category] = newValue;
+                                  });
+                                  sendData();
+                                },
+                                items: ([""] + categories[category]!['tasks'])
+                                    .map((task) {
+                                  return DropdownMenuItem<String>(
+                                    value: task,
+                                    child: Text(task),
+                                  );
+                                }).toList(),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
 
                       Column(

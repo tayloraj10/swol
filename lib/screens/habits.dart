@@ -65,7 +65,9 @@ class _HabitsState extends State<Habits> {
               const SizedBox(
                 height: 40,
               ),
-              const HabitTracking()
+              HabitTracking(
+                date: selectedDate!,
+              )
             ],
           ),
         ));
