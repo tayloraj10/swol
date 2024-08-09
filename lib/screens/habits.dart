@@ -36,38 +36,65 @@ class _HabitsState extends State<Habits> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(
-                height: 10,
+              Expanded(
+                child: Column(
+                  children: const [
+                    Text(
+                      "TODO List",
+                      style: largeTextStyle,
+                    )
+                  ],
+                ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'What did you do today?',
-                    style: largeTextStyle,
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  ElevatedButton(
-                      onPressed: () => {selectDate(context)},
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green),
-                      child: Text(
-                        DateFormat('yyyy-MM-dd').format(selectedDate!),
-                        style: mediumTextStyle,
-                      ))
-                ],
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'What did you do today?',
+                          style: largeTextStyle,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        ElevatedButton(
+                            onPressed: () => {selectDate(context)},
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green),
+                            child: Text(
+                              DateFormat('yyyy-MM-dd').format(selectedDate!),
+                              style: mediumTextStyle,
+                            ))
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    HabitTracking(
+                      date: selectedDate!,
+                    )
+                  ],
+                ),
               ),
-              const SizedBox(
-                height: 40,
+              Expanded(
+                child: Column(
+                  children: const [
+                    Text(
+                      "Stats",
+                      style: largeTextStyle,
+                    )
+                  ],
+                ),
               ),
-              HabitTracking(
-                date: selectedDate!,
-              )
             ],
           ),
         ));

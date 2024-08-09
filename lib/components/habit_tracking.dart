@@ -76,6 +76,7 @@ class _HabitTrackingState extends State<HabitTracking> {
   };
 
   Map<String, String?> selectedValues = {};
+  Map<String, num?> weeklyCounts = {};
 
   @override
   void initState() {
@@ -84,6 +85,7 @@ class _HabitTrackingState extends State<HabitTracking> {
       selectedValues[category] = null;
     });
     getData();
+    getWeeklyCounts();
   }
 
   @override
@@ -95,6 +97,7 @@ class _HabitTrackingState extends State<HabitTracking> {
         selectedValues = {};
       });
       getData();
+      getWeeklyCounts();
     }
   }
 
@@ -107,7 +110,45 @@ class _HabitTrackingState extends State<HabitTracking> {
         .where("day", isEqualTo: formatedDate);
     dataRef.get().then((value) => {
           if (value.docs.isNotEmpty)
-            {updateSelectedValues(value.docs.first.data()['tasks'])}
+            {
+              updateSelectedValues(value.docs.first.data()['tasks']),
+            }
+        });
+  }
+
+  void getWeeklyCounts() {
+    //date calcs
+    var weekStart = widget.date.add(Duration(days: -(widget.date.weekday - 1)));
+    var weekEnd = widget.date.add(Duration(days: 7 - widget.date.weekday));
+    var weekStartFormatted = DateFormat('yyyy-MM-dd').format(weekStart);
+    var weekEndFormatted = DateFormat('yyyy-MM-dd').format(weekEnd);
+
+    var userID = FirebaseAuth.instance.currentUser!.uid;
+    var ref = FirebaseFirestore.instance.collection("habit_tracking");
+    var dataRef = ref
+        .where('user_id', isEqualTo: userID)
+        .where('day', isGreaterThanOrEqualTo: weekStartFormatted)
+        .where('day', isLessThanOrEqualTo: weekEndFormatted);
+    dataRef.snapshots().forEach((element) => {
+          setState(() {
+            weeklyCounts = {};
+          }),
+          element.docs.forEach((e) {
+            // print(e.data());
+            Map tasks = e.data()['tasks'];
+            tasks.forEach((key, value) {
+              if (weeklyCounts.containsKey(key)) {
+                setState(() {
+                  weeklyCounts[key] = weeklyCounts[key]! + 1;
+                });
+              } else {
+                setState(() {
+                  weeklyCounts[key] = 1;
+                });
+              }
+            });
+          }),
+          // print(weeklyCounts)
         });
   }
 
@@ -140,7 +181,7 @@ class _HabitTrackingState extends State<HabitTracking> {
           else if (value.docs.isNotEmpty)
             {
               ref.doc(value.docs.first.id).update({"tasks": buildHabitData()})
-            }
+            },
         });
   }
 
@@ -254,7 +295,7 @@ class _HabitTrackingState extends State<HabitTracking> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            "${categories[category]!['goal']}",
+                            "${categories[category]!['goal'] - (weeklyCounts[category] ?? 0)}",
                             style: mediumTextStyle,
                           ),
                         ],
