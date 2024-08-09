@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:swole/components/habit_tracking.dart';
 import 'package:swole/components/nav_bar.dart';
+import 'package:swole/components/todo_list.dart';
 import 'package:swole/constants.dart';
 
 class Habits extends StatefulWidget {
@@ -41,10 +42,18 @@ class _HabitsState extends State<Habits> {
             children: [
               Expanded(
                 child: Column(
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       "TODO List",
                       style: largeTextStyle,
+                    ),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    Flexible(
+                      child: TodoList(
+                        date: selectedDate!,
+                      ),
                     )
                   ],
                 ),

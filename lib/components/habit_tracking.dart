@@ -133,22 +133,23 @@ class _HabitTrackingState extends State<HabitTracking> {
           setState(() {
             weeklyCounts = {};
           }),
-          element.docs.forEach((e) {
-            // print(e.data());
-            Map tasks = e.data()['tasks'];
-            tasks.forEach((key, value) {
-              if (weeklyCounts.containsKey(key)) {
-                setState(() {
-                  weeklyCounts[key] = weeklyCounts[key]! + 1;
-                });
-              } else {
-                setState(() {
-                  weeklyCounts[key] = 1;
-                });
-              }
-            });
-          }),
-          // print(weeklyCounts)
+          for (var e in element.docs)
+            {
+              // }
+              // element.docs.forEach((e) {
+              // print(e.data());
+              e.data()['tasks'].forEach((key, value) {
+                if (weeklyCounts.containsKey(key)) {
+                  setState(() {
+                    weeklyCounts[key] = weeklyCounts[key]! + 1;
+                  });
+                } else {
+                  setState(() {
+                    weeklyCounts[key] = 1;
+                  });
+                }
+              })
+            },
         });
   }
 
@@ -200,112 +201,110 @@ class _HabitTrackingState extends State<HabitTracking> {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
       child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Center(
-            child: Table(
-              border: const TableBorder(
-                  horizontalInside: BorderSide(color: Colors.lightGreenAccent)),
-              defaultVerticalAlignment: TableCellVerticalAlignment.baseline,
-              textBaseline: TextBaseline.ideographic,
-              defaultColumnWidth: const IntrinsicColumnWidth(),
-              children: [
-                const TableRow(children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Text(
-                      'Category',
-                      style: largeTextStyle,
-                    ),
+        scrollDirection: Axis.vertical,
+        child: Center(
+          child: Table(
+            border: const TableBorder(
+                horizontalInside: BorderSide(color: Colors.lightGreenAccent)),
+            defaultVerticalAlignment: TableCellVerticalAlignment.baseline,
+            textBaseline: TextBaseline.ideographic,
+            defaultColumnWidth: const IntrinsicColumnWidth(),
+            children: [
+              const TableRow(children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    'Category',
+                    style: largeTextStyle,
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                    child: Text(
-                      'Task',
-                      style: largeTextStyle,
-                    ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                  child: Text(
+                    'Task',
+                    style: largeTextStyle,
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                    child: Text(
-                      'Goal',
-                      style: largeTextStyle,
-                    ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                  child: Text(
+                    'Goal',
+                    style: largeTextStyle,
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                    child: Text(
-                      'Remaining',
-                      style: largeTextStyle,
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                  child: Text(
+                    'Remaining',
+                    style: largeTextStyle,
+                  ),
+                )
+              ]),
+              ...categories.keys.map((category) {
+                return TableRow(
+                  children: [
+                    Text(
+                      category,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                  )
-                ]),
-                ...categories.keys.map((category) {
-                  return TableRow(
-                    children: [
-                      Text(
-                        category,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
 
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: DropdownButton<String>(
-                                // hint: const Text('Select Task'),
-                                value: selectedValues[category],
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    selectedValues[category] = newValue;
-                                  });
-                                  sendData();
-                                },
-                                items: ([""] + categories[category]!['tasks'])
-                                    .map((task) {
-                                  return DropdownMenuItem<String>(
-                                    value: task,
-                                    child: Text(task),
-                                  );
-                                }).toList(),
-                              ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: DropdownButton<String>(
+                              // hint: const Text('Select Task'),
+                              value: selectedValues[category],
+                              onChanged: (newValue) {
+                                setState(() {
+                                  selectedValues[category] = newValue;
+                                });
+                                sendData();
+                              },
+                              items: ([""] + categories[category]!['tasks'])
+                                  .map((task) {
+                                return DropdownMenuItem<String>(
+                                  value: task,
+                                  child: Text(task),
+                                );
+                              }).toList(),
                             ),
-                          ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "${categories[category]!['goal']}",
+                          style: mediumTextStyle,
                         ),
-                      ),
+                      ],
+                    ),
 
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "${categories[category]!['goal']}",
-                            style: mediumTextStyle,
-                          ),
-                        ],
-                      ),
-
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "${categories[category]!['goal'] - (weeklyCounts[category] ?? 0)}",
-                            style: mediumTextStyle,
-                          ),
-                        ],
-                      ),
-                      // const Divider(),
-                    ],
-                  );
-                }).toList()
-              ],
-            ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "${categories[category]!['goal'] - (weeklyCounts[category] ?? 0)}",
+                          style: mediumTextStyle,
+                        ),
+                      ],
+                    ),
+                    // const Divider(),
+                  ],
+                );
+              }).toList()
+            ],
           ),
         ),
       ),
