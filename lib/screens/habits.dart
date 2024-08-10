@@ -29,6 +29,10 @@ class _HabitsState extends State<Habits> {
     }
   }
 
+  isMobile() {
+    return MediaQuery.of(context).size.width < 1300;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,24 +44,25 @@ class _HabitsState extends State<Habits> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    const Text(
-                      "TODO List",
-                      style: largeTextStyle,
-                    ),
-                    const SizedBox(
-                      height: 40,
-                    ),
-                    Flexible(
-                      child: TodoList(
-                        date: selectedDate!,
+              if (!isMobile())
+                Expanded(
+                  child: Column(
+                    children: [
+                      const Text(
+                        "TODO List",
+                        style: largeTextStyle,
                       ),
-                    )
-                  ],
+                      const SizedBox(
+                        height: 40,
+                      ),
+                      Flexible(
+                        child: TodoList(
+                          date: selectedDate!,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-              ),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -65,8 +70,9 @@ class _HabitsState extends State<Habits> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      runSpacing: 10,
                       children: [
                         const Text(
                           'What did you do today?',
@@ -88,22 +94,25 @@ class _HabitsState extends State<Habits> {
                     const SizedBox(
                       height: 40,
                     ),
-                    HabitTracking(
-                      date: selectedDate!,
+                    Flexible(
+                      child: HabitTracking(
+                        date: selectedDate!,
+                      ),
                     )
                   ],
                 ),
               ),
-              Expanded(
-                child: Column(
-                  children: const [
-                    Text(
-                      "Stats",
-                      style: largeTextStyle,
-                    )
-                  ],
+              if (!isMobile())
+                Expanded(
+                  child: Column(
+                    children: const [
+                      Text(
+                        "Stats",
+                        style: largeTextStyle,
+                      )
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         ));
