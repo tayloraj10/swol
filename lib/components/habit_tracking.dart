@@ -199,6 +199,19 @@ class _HabitTrackingState extends State<HabitTracking> {
     return data;
   }
 
+  calcRemainingColor(int input) {
+    int minVal = 0;
+    int maxVal = 0;
+    categories.forEach((key, value) {
+      int remaining = categories[key]!['goal'] - (weeklyCounts[key] ?? 0);
+      if (remaining < minVal) minVal = remaining;
+      if (remaining > maxVal) maxVal = remaining;
+    });
+    double ratio = (input - minVal) / (maxVal - minVal);
+
+    return Color.lerp(Colors.green, Colors.red, ratio)!;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -296,7 +309,10 @@ class _HabitTrackingState extends State<HabitTracking> {
                       children: [
                         Text(
                           "${categories[category]!['goal'] - (weeklyCounts[category] ?? 0)}",
-                          style: mediumTextStyle,
+                          style: mediumTextStyle.copyWith(
+                              color: calcRemainingColor(
+                                  categories[category]!['goal'] -
+                                      (weeklyCounts[category] ?? 0))),
                         ),
                       ],
                     ),
