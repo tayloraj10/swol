@@ -55,11 +55,16 @@ class _TodoListState extends State<TodoList> {
         stream: FirebaseFirestore.instance
             .collection("todo")
             .where('user_id', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+            .where(Filter.or(
+                Filter("completed_day",
+                    isEqualTo: DateFormat('yyyy-MM-dd').format(widget.date)),
+                Filter("completed_day", isNull: true)))
+            // .orderBy("completed_day")
             .orderBy("created_date")
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
-            print(snapshot.error);
+            // print(snapshot.error);
             return const Text(
               'Something went wrong',
               style: TextStyle(color: Colors.white),
