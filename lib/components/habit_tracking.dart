@@ -13,67 +13,68 @@ class HabitTracking extends StatefulWidget {
 }
 
 class _HabitTrackingState extends State<HabitTracking> {
-  static const Map<String, Map> categories = {
-    'Exercise': {
-      'tasks': ['Calisthenics', 'Gym'],
-      'goal': 3
-    },
-    'Language': {
-      'tasks': ['Duolingo'],
-      'goal': 7
-    },
-    'Meditation': {
-      'tasks': ['Headspace'],
-      'goal': 3
-    },
-    'Stretch': {
-      'tasks': ['Bend', 'Headspace'],
-      'goal': 3
-    },
-    'Learning / Projects': {
-      'tasks': ['Brilliant', 'React Tutorial', 'Collective', 'Programming'],
-      'goal': 3
-    },
-    'Brain Training': {
-      'tasks': ['Elevate', 'Impulse'],
-      'goal': 3
-    },
-    'Creative': {
-      'tasks': ['TikTok', 'Movie'],
-      'goal': 5
-    },
-    'Music': {
-      'tasks': ['Guitar', 'Piano'],
-      'goal': 1
-    },
-    'Personal Growth': {
-      'tasks': ['Podcast', 'Read', 'Journal', 'Jobs'],
-      'goal': 2
-    },
-    'Wellbeing': {
-      'tasks': [
-        'Loona',
-        'Sensa',
-        'Cold Shower',
-        'Supplements',
-        'Hydration (1 gal)'
-      ],
-      'goal': 2
-    },
-    'Cardio': {
-      'tasks': [
-        'Bike',
-        'Jump Rope',
-        'Run',
-        'Tennis',
-        'Kettlebell Ladder',
-        'Hike',
-        'Swim',
-        'Long Walk'
-      ],
-      'goal': 1
-    }
-  };
+  Map<String, Map> categories = {};
+  // static const Map<String, Map> categories = {
+  //   'Exercise': {
+  //     'tasks': ['Calisthenics', 'Gym'],
+  //     'goal': 3
+  //   },
+  //   'Language': {
+  //     'tasks': ['Duolingo'],
+  //     'goal': 7
+  //   },
+  //   'Meditation': {
+  //     'tasks': ['Headspace'],
+  //     'goal': 3
+  //   },
+  //   'Stretch': {
+  //     'tasks': ['Bend', 'Headspace'],
+  //     'goal': 3
+  //   },
+  //   'Learning / Projects': {
+  //     'tasks': ['Brilliant', 'React Tutorial', 'Collective', 'Programming'],
+  //     'goal': 3
+  //   },
+  //   'Brain Training': {
+  //     'tasks': ['Elevate', 'Impulse'],
+  //     'goal': 3
+  //   },
+  //   'Creative': {
+  //     'tasks': ['TikTok', 'Movie'],
+  //     'goal': 5
+  //   },
+  //   'Music': {
+  //     'tasks': ['Guitar', 'Piano'],
+  //     'goal': 1
+  //   },
+  //   'Personal Growth': {
+  //     'tasks': ['Podcast', 'Read', 'Journal', 'Jobs'],
+  //     'goal': 2
+  //   },
+  //   'Wellbeing': {
+  //     'tasks': [
+  //       'Loona',
+  //       'Sensa',
+  //       'Cold Shower',
+  //       'Supplements',
+  //       'Hydration (1 gal)'
+  //     ],
+  //     'goal': 2
+  //   },
+  //   'Cardio': {
+  //     'tasks': [
+  //       'Bike',
+  //       'Jump Rope',
+  //       'Run',
+  //       'Tennis',
+  //       'Kettlebell Ladder',
+  //       'Hike',
+  //       'Swim',
+  //       'Long Walk'
+  //     ],
+  //     'goal': 1
+  //   }
+  // };
 
   Map<String, String?> selectedValues = {};
   Map<String, num?> weeklyCounts = {};
@@ -84,6 +85,7 @@ class _HabitTrackingState extends State<HabitTracking> {
     categories.forEach((category, tasks) {
       selectedValues[category] = null;
     });
+    getCategories();
     getData();
     getWeeklyCounts();
   }
@@ -99,6 +101,22 @@ class _HabitTrackingState extends State<HabitTracking> {
       getData();
       getWeeklyCounts();
     }
+  }
+
+  Future<void> getCategories() async {
+    QuerySnapshot data =
+        await FirebaseFirestore.instance.collection("habits").get();
+    Map categoryData = data.docs.first['categories'];
+    categoryData.forEach((key, value) {
+      categoryData[key]['tasks'] =
+          List<String>.from(categoryData[key]['tasks']);
+    });
+    var sortedData = Map.fromEntries(categoryData.entries.toList()
+      ..sort((e1, e2) => categoryData[e1.key]['order']
+          .compareTo(categoryData[e2.key]['order'])));
+    setState(() {
+      categories = Map<String, Map>.from(sortedData);
+    });
   }
 
   void getData() {
