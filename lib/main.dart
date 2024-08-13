@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
             onSurface: Colors.white),
       ),
       // home: const Loading(),
-      initialRoute: '/',
+      initialRoute: '/home',
       routes: {
         '/': (context) => const Loading(),
         '/home': (context) => const HomeScreen(),

@@ -12,8 +12,21 @@ class Habits extends StatefulWidget {
   State<Habits> createState() => _HabitsState();
 }
 
+enum HabitsPages {
+  habits,
+  todo,
+  stats,
+}
+
 class _HabitsState extends State<Habits> {
   DateTime? selectedDate = DateTime.now();
+
+  HabitsPages selectedPage = HabitsPages.habits;
+  Map pageText = {
+    HabitsPages.habits: 'Habits',
+    HabitsPages.todo: 'To Do',
+    HabitsPages.stats: 'Stats'
+  };
 
   Future<void> selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -40,79 +53,136 @@ class _HabitsState extends State<Habits> {
           color: Colors.lightGreen,
         ),
         body: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          padding: const EdgeInsets.all(14),
+          child: Column(
             children: [
-              if (!isMobile())
-                Expanded(
-                  child: Column(
+              if (isMobile())
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        "TODO List",
-                        style: largeTextStyle,
-                      ),
+                      ElevatedButton(
+                          onPressed: () => {
+                                setState(() {
+                                  selectedPage =
+                                      selectedPage != HabitsPages.todo
+                                          ? HabitsPages.todo
+                                          : HabitsPages.habits;
+                                })
+                              },
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.lightGreen),
+                          child: Text(
+                            selectedPage != HabitsPages.todo
+                                ? pageText[HabitsPages.todo]
+                                : pageText[HabitsPages.habits],
+                            style: mediumTextStyle,
+                          )),
                       const SizedBox(
-                        height: 40,
+                        width: 20,
                       ),
-                      Flexible(
-                        child: TodoList(
-                          date: selectedDate!,
-                        ),
-                      )
+                      ElevatedButton(
+                          onPressed: () => {
+                                setState(() {
+                                  selectedPage =
+                                      selectedPage != HabitsPages.stats
+                                          ? HabitsPages.stats
+                                          : HabitsPages.habits;
+                                })
+                              },
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.lightGreen),
+                          child: Text(
+                            selectedPage != HabitsPages.stats
+                                ? pageText[HabitsPages.stats]
+                                : pageText[HabitsPages.habits],
+                            style: mediumTextStyle,
+                          ))
                     ],
                   ),
                 ),
               Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      runSpacing: 10,
-                      children: [
-                        const Text(
-                          'What did you do today?',
-                          style: largeTextStyle,
+                    if (!isMobile() ||
+                        (isMobile() && selectedPage == HabitsPages.todo))
+                      Expanded(
+                        child: Column(
+                          children: [
+                            const Text(
+                              "TODO List",
+                              style: largeTextStyle,
+                            ),
+                            const SizedBox(
+                              height: 40,
+                            ),
+                            Flexible(
+                              child: TodoList(
+                                date: selectedDate!,
+                              ),
+                            )
+                          ],
                         ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        ElevatedButton(
-                            onPressed: () => {selectDate(context)},
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green),
-                            child: Text(
-                              DateFormat('yyyy-MM-dd').format(selectedDate!),
-                              style: mediumTextStyle,
-                            ))
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 40,
-                    ),
-                    Flexible(
-                      child: HabitTracking(
-                        date: selectedDate!,
                       ),
-                    )
+                    if (!isMobile() ||
+                        (isMobile() && selectedPage == HabitsPages.habits))
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              runSpacing: 10,
+                              children: [
+                                const Text(
+                                  'What did you do today?',
+                                  style: largeTextStyle,
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                ElevatedButton(
+                                    onPressed: () => {selectDate(context)},
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green),
+                                    child: Text(
+                                      DateFormat('yyyy-MM-dd')
+                                          .format(selectedDate!),
+                                      style: mediumTextStyle,
+                                    ))
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 40,
+                            ),
+                            Flexible(
+                              child: HabitTracking(
+                                date: selectedDate!,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    if (!isMobile() ||
+                        (isMobile() && selectedPage == HabitsPages.stats))
+                      Expanded(
+                        child: Column(
+                          children: const [
+                            Text(
+                              "Stats",
+                              style: largeTextStyle,
+                            )
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),
-              if (!isMobile())
-                Expanded(
-                  child: Column(
-                    children: const [
-                      Text(
-                        "Stats",
-                        style: largeTextStyle,
-                      )
-                    ],
-                  ),
-                ),
             ],
           ),
         ));

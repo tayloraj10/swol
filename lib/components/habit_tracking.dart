@@ -222,7 +222,6 @@ class _HabitTrackingState extends State<HabitTracking> {
     int maxVal = 0;
     categories.forEach((key, value) {
       int remaining = categories[key]!['goal'] - (weeklyCounts[key] ?? 0);
-      if (remaining < minVal) minVal = remaining;
       if (remaining > maxVal) maxVal = remaining;
     });
     double ratio = (input - minVal) / (maxVal - minVal);
@@ -254,8 +253,17 @@ class _HabitTrackingState extends State<HabitTracking> {
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                  child: Center(
+                    child: Text(
+                      'Task',
+                      style: largeTextStyle,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Text(
-                    'Task',
+                    'Remaining',
                     style: largeTextStyle,
                   ),
                 ),
@@ -266,13 +274,6 @@ class _HabitTrackingState extends State<HabitTracking> {
                     style: largeTextStyle,
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  child: Text(
-                    'Remaining',
-                    style: largeTextStyle,
-                  ),
-                )
               ]),
               ...categories.keys.map((category) {
                 return TableRow(
@@ -282,11 +283,10 @@ class _HabitTrackingState extends State<HabitTracking> {
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4),
@@ -311,7 +311,27 @@ class _HabitTrackingState extends State<HabitTracking> {
                         ],
                       ),
                     ),
-
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          color: calcRemainingColor(
+                              categories[category]!['goal'] -
+                                  (weeklyCounts[category] ?? 0)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Text(
+                                "${categories[category]!['goal'] - (weeklyCounts[category] ?? 0)}",
+                                style: mediumTextStyle
+                                // .copyWith(
+                                //     color: calcRemainingColor(
+                                //         categories[category]!['goal'] -
+                                //             (weeklyCounts[category] ?? 0))),
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -321,20 +341,6 @@ class _HabitTrackingState extends State<HabitTracking> {
                         ),
                       ],
                     ),
-
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          "${categories[category]!['goal'] - (weeklyCounts[category] ?? 0)}",
-                          style: mediumTextStyle.copyWith(
-                              color: calcRemainingColor(
-                                  categories[category]!['goal'] -
-                                      (weeklyCounts[category] ?? 0))),
-                        ),
-                      ],
-                    ),
-                    // const Divider(),
                   ],
                 );
               }).toList()

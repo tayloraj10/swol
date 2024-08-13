@@ -26,23 +26,25 @@ class PageButton extends StatelessWidget {
       padding: const EdgeInsets.all(10),
       child: ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: color),
-          onPressed: text == 'Weight Lifting'
-              ? null
-              : () => {
-                    Navigator.push(
-                      // or pushReplacement, if you need that
-                      context,
-                      QuickRoute(
-                        routeName: routeMapping[text],
-                        page: pageMapping[text],
-                      ),
-                    )
+          onPressed:
+              // text == 'Weight Lifting'
+              text != 'Habit Tracking'
+                  ? null
+                  : () => {
+                        Navigator.push(
+                          // or pushReplacement, if you need that
+                          context,
+                          QuickRoute(
+                            routeName: routeMapping[text],
+                            page: pageMapping[text],
+                          ),
+                        )
 
-                    // Navigator.pushNamed(
-                    //   context,
-                    //   '/calisthenics',
-                    // )
-                  },
+                        // Navigator.pushNamed(
+                        //   context,
+                        //   '/calisthenics',
+                        // )
+                      },
           child: Padding(
             padding: const EdgeInsets.all(30),
             child: Column(
@@ -51,7 +53,8 @@ class PageButton extends StatelessWidget {
                   text,
                   style: largeTextStyle,
                 ),
-                if (text == 'Weight Lifting')
+                // if (text == 'Weight Lifting')
+                if (text != 'Habit Tracking')
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
                     child: Text(
