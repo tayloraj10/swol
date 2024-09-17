@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:swole/components/manage_tasks_dialog.dart';
 import 'package:swole/constants.dart';
 
 class HabitTracking extends StatefulWidget {
@@ -104,9 +105,21 @@ class _HabitTrackingState extends State<HabitTracking> {
   }
 
   Future<void> getCategories() async {
-    QuerySnapshot data =
-        await FirebaseFirestore.instance.collection("habits").get();
-    Map categoryData = data.docs.first['categories'];
+    Map categoryData;
+    if (await checkForCustomCategories()) {
+      DocumentSnapshot data = await FirebaseFirestore.instance
+          .collection("habits")
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .get();
+      categoryData = data['categories'];
+    } else {
+      QuerySnapshot data = await FirebaseFirestore.instance
+          .collection("habits")
+          .where('default', isEqualTo: true)
+          .get();
+      categoryData = data.docs.first['categories'];
+    }
+
     categoryData.forEach((key, value) {
       categoryData[key]['tasks'] =
           List<String>.from(categoryData[key]['tasks']);
@@ -229,6 +242,41 @@ class _HabitTrackingState extends State<HabitTracking> {
     return Color.lerp(Colors.green, Colors.red, ratio)!;
   }
 
+  Future<bool> checkForCustomCategories() async {
+    var userID = FirebaseAuth.instance.currentUser!.uid;
+    var userRef = FirebaseFirestore.instance.collection("habits").doc(userID);
+    var userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return false;
+    }
+    return true;
+  }
+
+  createCustomCategories() async {
+    var userID = FirebaseAuth.instance.currentUser!.uid;
+    FirebaseFirestore.instance.collection("habits").doc(userID).set({
+      'categories': categories,
+    });
+  }
+
+  editTasks() async {
+    if (!await checkForCustomCategories()) {
+      createCustomCategories();
+    }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ManageTasks(
+          categories: categories,
+        );
+      },
+    ).then((_) {
+      // print('closing');
+      getCategories();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -243,15 +291,23 @@ class _HabitTrackingState extends State<HabitTracking> {
             textBaseline: TextBaseline.ideographic,
             defaultColumnWidth: const IntrinsicColumnWidth(),
             children: [
-              const TableRow(children: [
+              TableRow(children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    'Category',
-                    style: largeTextStyle,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Category',
+                        style: largeTextStyle,
+                      ),
+                      IconButton(
+                          onPressed: () => {editTasks()},
+                          icon: const Icon(Icons.edit_sharp)),
+                    ],
                   ),
                 ),
-                Padding(
+                const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Center(
                     child: Text(
@@ -260,14 +316,14 @@ class _HabitTrackingState extends State<HabitTracking> {
                     ),
                   ),
                 ),
-                Padding(
+                const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Text(
                     'Remaining',
                     style: largeTextStyle,
                   ),
                 ),
-                Padding(
+                const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Text(
                     'Goal',
