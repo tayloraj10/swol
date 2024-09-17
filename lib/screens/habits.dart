@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:swole/components/habit_tracking.dart';
 import 'package:swole/components/nav_bar.dart';
 import 'package:swole/components/todo_list.dart';
+import 'package:swole/components/weekly_stats.dart';
 import 'package:swole/constants.dart';
 
 class Habits extends StatefulWidget {
@@ -176,6 +177,12 @@ class _HabitsState extends State<Habits> {
                             Text(
                               "Stats",
                               style: largeTextStyle,
+                            ),
+                            SizedBox(
+                              height: 40,
+                            ),
+                            Flexible(
+                              child: WeeklyStats(),
                             )
                           ],
                         ),
