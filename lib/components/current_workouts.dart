@@ -141,55 +141,59 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
                                 width: 60,
                                 child: Stack(
                                   children: [
-                                    Badge(
-                                      position: BadgePosition.bottomEnd(),
-                                      badgeContent: GestureDetector(
-                                        onTap: (() async => {
-                                              await deleteRep(
-                                                id: exercise.id,
-                                                index: index,
-                                              ),
-                                            }),
-                                        child: const Icon(
-                                          Icons.close,
-                                          size: 16,
-                                        ),
-                                      ),
-                                      child: TextField(
-                                        autofocus: true,
-                                        onChanged: (String newvalue) async => {
-                                          await updateRep(
-                                            id: exercise.id,
-                                            index: index,
-                                            newValue: newvalue,
+                                    MouseRegion(
+                                      cursor: SystemMouseCursors.click,
+                                      child: Badge(
+                                        position: BadgePosition.bottomEnd(),
+                                        badgeContent: GestureDetector(
+                                          onTap: (() async => {
+                                                await deleteRep(
+                                                  id: exercise.id,
+                                                  index: index,
+                                                ),
+                                              }),
+                                          child: const Icon(
+                                            Icons.close,
+                                            size: 16,
                                           ),
-                                        },
-                                        controller: repController,
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: <TextInputFormatter>[
-                                          FilteringTextInputFormatter
-                                              .digitsOnly,
-                                        ],
-                                        maxLength: 4,
-                                        cursorColor: Colors.black,
-                                        textAlign: TextAlign.center,
-                                        decoration: InputDecoration(
-                                          floatingLabelAlignment:
-                                              FloatingLabelAlignment.start,
-                                          floatingLabelBehavior:
-                                              FloatingLabelBehavior.always,
-                                          floatingLabelStyle: const TextStyle(
-                                              color: Colors.white),
-                                          border: const OutlineInputBorder(),
-                                          focusedBorder:
-                                              const OutlineInputBorder(),
-                                          focusColor: Colors.white,
-                                          focusedErrorBorder:
-                                              const OutlineInputBorder(),
-                                          enabledBorder:
-                                              const OutlineInputBorder(),
-                                          labelText: 'Set ${index + 1}',
-                                          counterText: '',
+                                        ),
+                                        child: TextField(
+                                          autofocus: true,
+                                          onChanged: (String newvalue) async =>
+                                              {
+                                            await updateRep(
+                                              id: exercise.id,
+                                              index: index,
+                                              newValue: newvalue,
+                                            ),
+                                          },
+                                          controller: repController,
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: <TextInputFormatter>[
+                                            FilteringTextInputFormatter
+                                                .digitsOnly,
+                                          ],
+                                          maxLength: 4,
+                                          cursorColor: Colors.black,
+                                          textAlign: TextAlign.center,
+                                          decoration: InputDecoration(
+                                            floatingLabelAlignment:
+                                                FloatingLabelAlignment.start,
+                                            floatingLabelBehavior:
+                                                FloatingLabelBehavior.always,
+                                            floatingLabelStyle: const TextStyle(
+                                                color: Colors.white),
+                                            border: const OutlineInputBorder(),
+                                            focusedBorder:
+                                                const OutlineInputBorder(),
+                                            focusColor: Colors.white,
+                                            focusedErrorBorder:
+                                                const OutlineInputBorder(),
+                                            enabledBorder:
+                                                const OutlineInputBorder(),
+                                            labelText: 'Set ${index + 1}',
+                                            counterText: '',
+                                          ),
                                         ),
                                       ),
                                     ),
