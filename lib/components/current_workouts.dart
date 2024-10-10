@@ -1,19 +1,21 @@
+import 'package:accordion/accordion.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:swole/components/single_workout.dart';
 import 'package:swole/constants.dart';
 import 'package:swole/models/models.dart';
-import 'package:badges/badges.dart';
 
 class CurrentWorkouts extends StatefulWidget {
-  const CurrentWorkouts({super.key});
+  final DateTime date;
+
+  const CurrentWorkouts({super.key, required this.date});
 
   @override
   State<CurrentWorkouts> createState() => _CurrentWorkoutsState();
 }
 
 class _CurrentWorkoutsState extends State<CurrentWorkouts> {
-  addset(String id) {
+  addSet(String id) {
     var ref =
         FirebaseFirestore.instance.collection("workouts_calisthenics").doc(id);
 
@@ -67,14 +69,28 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
       key: UniqueKey(),
       stream: FirebaseFirestore.instance
           .collection('workouts_calisthenics')
+          .where('date',
+              isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime(
+                  widget.date.year, widget.date.month, widget.date.day)))
+          .where('date',
+              isLessThan: Timestamp.fromDate(
+                  DateTime(widget.date.year, widget.date.month, widget.date.day)
+                      .add(const Duration(days: 1))))
+          .limit(4)
           .snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Padding(
+            padding: EdgeInsets.all(20),
+            child: Center(child: CircularProgressIndicator()),
+          );
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('No Data Available'));
+          return const Padding(
+            padding: EdgeInsets.all(20),
+            child: Center(child: Text('No Exercises Found')),
+          );
         } else {
           final data = snapshot.data!;
           return ListView.builder(
@@ -82,153 +98,87 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
             itemCount: data.docs.length,
             itemBuilder: (context, index) {
               final exercise = data.docs[index];
-              return Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.blue,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            exercise['exercise_name'],
-                            style: mediumTextStyle,
-                            textAlign: TextAlign.end,
+              return Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Accordion(
+                    children: [
+                      AccordionSection(
+                        headerBackgroundColor: Colors.blue,
+                        contentBackgroundColor: Colors.blue[700],
+                        header: Padding(
+                          padding: const EdgeInsets.all(11),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SingleWorkout(
+                                  exercise: exercise,
+                                  updateRep: updateRep,
+                                  addSet: addSet,
+                                  deleteRep: deleteRep),
+                            ],
                           ),
-                          Text(
-                            exercise['category'],
-                            style: smallTextStyle,
-                            textAlign: TextAlign.end,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 100,
-                      child: VerticalDivider(
-                        width: 20,
-                        thickness: 3,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: exercise['sets']
-                              .asMap()
-                              .entries
-                              .map<Widget>((entry) {
-                            int index = entry.key;
-                            var set = entry.value;
-                            TextEditingController repController =
-                                TextEditingController();
-                            repController.text =
-                                set['reps'] == 0 ? "" : set['reps'].toString();
-                            repController.selection = TextSelection.collapsed(
-                                offset: repController.text.length);
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4),
-                              child: SizedBox(
-                                width: 60,
-                                child: Stack(
-                                  children: [
-                                    MouseRegion(
-                                      cursor: SystemMouseCursors.click,
-                                      child: Badge(
-                                        position: BadgePosition.bottomEnd(),
-                                        badgeContent: GestureDetector(
-                                          onTap: (() async => {
-                                                await deleteRep(
-                                                  id: exercise.id,
-                                                  index: index,
-                                                ),
-                                              }),
-                                          child: const Icon(
-                                            Icons.close,
-                                            size: 16,
-                                          ),
-                                        ),
-                                        child: TextField(
-                                          autofocus: true,
-                                          onChanged: (String newvalue) async =>
-                                              {
-                                            await updateRep(
-                                              id: exercise.id,
-                                              index: index,
-                                              newValue: newvalue,
-                                            ),
-                                          },
-                                          controller: repController,
-                                          keyboardType: TextInputType.number,
-                                          inputFormatters: <TextInputFormatter>[
-                                            FilteringTextInputFormatter
-                                                .digitsOnly,
-                                          ],
-                                          maxLength: 4,
-                                          cursorColor: Colors.black,
-                                          textAlign: TextAlign.center,
-                                          decoration: InputDecoration(
-                                            floatingLabelAlignment:
-                                                FloatingLabelAlignment.start,
-                                            floatingLabelBehavior:
-                                                FloatingLabelBehavior.always,
-                                            floatingLabelStyle: const TextStyle(
-                                                color: Colors.white),
-                                            border: const OutlineInputBorder(),
-                                            focusedBorder:
-                                                const OutlineInputBorder(),
-                                            focusColor: Colors.white,
-                                            focusedErrorBorder:
-                                                const OutlineInputBorder(),
-                                            enabledBorder:
-                                                const OutlineInputBorder(),
-                                            labelText: 'Set ${index + 1}',
-                                            counterText: '',
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    // Positioned(
-                                    //   top: 1,
-                                    //   right: 0,
-                                    //   child: GestureDetector(
-                                    //     onTap: (() async => {
-                                    //           await deleteRep(
-                                    //             id: exercise.id,
-                                    //             index: index,
-                                    //           ),
-                                    //         }),
-                                    //     child: const Icon(
-                                    //       Icons.close,
-                                    //       size: 16,
-                                    //     ),
-                                    //   ),
-                                    // ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }).toList(),
                         ),
-                      ),
-                    ),
-                    Flexible(
-                        child: IconButton(
-                      icon: const Icon(Icons.add),
-                      onPressed: () => {addset(exercise.id)},
-                    ))
-                  ],
-                ),
-              );
+                        content: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 8.0),
+                              child: Text(
+                                'Past Exercises',
+                                style: largeTextStyle,
+                              ),
+                            ),
+                            StreamBuilder<QuerySnapshot>(
+                              key: UniqueKey(),
+                              stream: FirebaseFirestore.instance
+                                  .collection('workouts_calisthenics')
+                                  .where('exercise_id',
+                                      isEqualTo: exercise['exercise_id'])
+                                  .orderBy('date', descending: true)
+                                  .snapshots(),
+                              builder: (context,
+                                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                } else if (snapshot.hasError) {
+                                  return Center(
+                                      child: Text('Error: ${snapshot.error}'));
+                                } else if (!snapshot.hasData ||
+                                    snapshot.data!.docs.isEmpty) {
+                                  return const Center(
+                                      child: Text('No Data Available'));
+                                } else {
+                                  final data = snapshot.data!;
+                                  return ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: data.docs.length - 1,
+                                    itemBuilder: (context, index) {
+                                      final oldExercise = data.docs[index + 1];
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          SingleWorkout(
+                                            exercise: oldExercise,
+                                            deleteRep: deleteRep,
+                                            updateRep: updateRep,
+                                            addSet: addSet,
+                                            pastExercise: true,
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ));
             },
           );
         }

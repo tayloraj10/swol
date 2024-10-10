@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:swole/components/current_workouts.dart';
 import 'package:swole/components/nav_bar.dart';
 import 'package:swole/components/new_workout.dart';
+import 'package:swole/constants.dart';
 
 class CalisthenicsHome extends StatefulWidget {
   const CalisthenicsHome({super.key});
@@ -11,6 +13,22 @@ class CalisthenicsHome extends StatefulWidget {
 }
 
 class _CalisthenicsHomeState extends State<CalisthenicsHome> {
+  DateTime selectedDate = DateTime.now();
+
+  Future<void> selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,15 +39,30 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
           padding: const EdgeInsets.all(10),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: const [
-              SizedBox(
+            children: [
+              const SizedBox(
                 height: 10,
               ),
-              NewWorkout(),
-              SizedBox(
-                height: 20,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const NewWorkout(),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  ElevatedButton(
+                      onPressed: () => {selectDate(context)},
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green),
+                      child: Text(
+                        DateFormat('yyyy-MM-dd').format(selectedDate),
+                        style: mediumTextStyle,
+                      ))
+                ],
               ),
-              CurrentWorkouts()
+              CurrentWorkouts(
+                date: selectedDate,
+              )
             ],
           ),
         )
