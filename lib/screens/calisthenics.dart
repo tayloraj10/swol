@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:swole/components/current_workouts.dart';
 import 'package:swole/components/nav_bar.dart';
-import 'package:swole/components/new_workout.dart';
+import 'package:swole/components/new_workout_button.dart';
 import 'package:swole/constants.dart';
 
 class CalisthenicsHome extends StatefulWidget {
@@ -46,7 +46,7 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const NewWorkout(),
+                  const NewWorkoutButton(),
                   const SizedBox(
                     width: 20,
                   ),

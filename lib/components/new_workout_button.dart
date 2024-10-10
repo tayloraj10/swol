@@ -1,15 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:swole/components/new_exercise_dialog.dart';
 import 'package:swole/constants.dart';
 
-class NewWorkout extends StatefulWidget {
-  const NewWorkout({super.key});
+class NewWorkoutButton extends StatefulWidget {
+  const NewWorkoutButton({super.key});
 
   @override
-  State<NewWorkout> createState() => _NewWorkoutState();
+  State<NewWorkoutButton> createState() => _NewWorkoutButtonState();
 }
 
-class _NewWorkoutState extends State<NewWorkout> {
+class _NewWorkoutButtonState extends State<NewWorkoutButton> {
   createNewWorkout() {
     FirebaseFirestore.instance.collection('workouts_calisthenics').add({
       'category': "Horizontal Pull",
@@ -25,7 +26,14 @@ class _NewWorkoutState extends State<NewWorkout> {
     return Column(
       children: [
         ElevatedButton(
-            onPressed: () => {createNewWorkout()},
+            onPressed: () => {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return const NewExerciseDialog();
+                    },
+                  ),
+                },
             child: const Text(
               'New Exercise',
               style: mediumTextStyle,

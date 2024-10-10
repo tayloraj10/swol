@@ -3,15 +3,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:swole/constants.dart';
 
-class ManageTasks extends StatefulWidget {
+class ManageTasksDialog extends StatefulWidget {
   final Map<String, Map> categories;
-  const ManageTasks({super.key, required this.categories});
+  const ManageTasksDialog({super.key, required this.categories});
 
   @override
-  State<ManageTasks> createState() => _ManageTasksState();
+  State<ManageTasksDialog> createState() => _ManageTasksDialogState();
 }
 
-class _ManageTasksState extends State<ManageTasks> {
+class _ManageTasksDialogState extends State<ManageTasksDialog> {
   removeCategory(String category) async {
     // Logic to remove the category
     DocumentSnapshot data = await FirebaseFirestore.instance

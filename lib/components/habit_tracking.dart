@@ -267,7 +267,7 @@ class _HabitTrackingState extends State<HabitTracking> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return ManageTasks(
+        return ManageTasksDialog(
           categories: categories,
         );
       },
