@@ -1,4 +1,6 @@
 firebase_options.dart
+firebaseCred.json
+*.csv
 
 # Miscellaneous
 *.class
