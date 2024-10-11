@@ -4,47 +4,99 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:swole/constants.dart';
+import 'package:swole/models/models.dart';
 
 class SingleWorkout extends StatefulWidget {
   final QueryDocumentSnapshot<Object?> exercise;
-  final Function deleteRep;
-  final Function updateRep;
-  final Function addSet;
+
   final bool pastExercise;
 
   const SingleWorkout(
-      {super.key,
-      required this.exercise,
-      required this.deleteRep,
-      required this.updateRep,
-      required this.addSet,
-      this.pastExercise = false});
+      {super.key, required this.exercise, this.pastExercise = false});
 
   @override
   State<SingleWorkout> createState() => _SingleWorkoutState();
 }
 
 class _SingleWorkoutState extends State<SingleWorkout> {
+  addSet(String id) {
+    var ref =
+        FirebaseFirestore.instance.collection("workouts_calisthenics").doc(id);
+
+    ref.update({
+      'sets': FieldValue.arrayUnion([Rep(reps: 0).toMap()])
+    });
+  }
+
+  updateRep({
+    required String id,
+    required int index,
+    required String newValue,
+  }) async {
+    if (newValue != '') {
+      DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+          .collection('workouts_calisthenics')
+          .doc(id)
+          .get();
+
+      List sets = List.from(docSnapshot.get('sets'));
+      sets[index] = Rep(reps: int.tryParse(newValue)!).toMap();
+
+      await FirebaseFirestore.instance
+          .collection('workouts_calisthenics')
+          .doc(id)
+          .update({'sets': sets});
+    }
+  }
+
+  deleteRep({
+    required String id,
+    required int index,
+  }) async {
+    DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+        .collection('workouts_calisthenics')
+        .doc(id)
+        .get();
+
+    List sets = List.from(docSnapshot.get('sets'));
+    sets.removeAt(index);
+
+    await FirebaseFirestore.instance
+        .collection('workouts_calisthenics')
+        .doc(id)
+        .update({'sets': sets});
+  }
+
+  deleteExercise(String id) {
+    FirebaseFirestore.instance
+        .collection('workouts_calisthenics')
+        .doc(id)
+        .delete();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Flexible(
+        SizedBox(
+          width: isMobile(context) ? 100 : null,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                widget.exercise['exercise_name'],
-                style: mediumTextStyle,
-                textAlign: TextAlign.end,
-              ),
-              Text(
-                widget.exercise['category'],
-                style: smallTextStyle,
-                textAlign: TextAlign.end,
-              ),
+              if (!widget.pastExercise)
+                Text(
+                  widget.exercise['exercise_name'],
+                  style: mediumTextStyle,
+                  textAlign: TextAlign.end,
+                ),
+              if (!widget.pastExercise)
+                Text(
+                  widget.exercise['category'],
+                  style: smallTextStyle,
+                  textAlign: TextAlign.end,
+                ),
               if (widget.pastExercise)
                 Text(
                   DateFormat('MM/dd/yy')
@@ -53,6 +105,11 @@ class _SingleWorkoutState extends State<SingleWorkout> {
                   style: smallTextStyle,
                   textAlign: TextAlign.end,
                 ),
+              if (!widget.pastExercise)
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () => {deleteExercise(widget.exercise.id)},
+                )
             ],
           ),
         ),
@@ -68,103 +125,90 @@ class _SingleWorkoutState extends State<SingleWorkout> {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children:
-                  widget.exercise['sets'].asMap().entries.map<Widget>((entry) {
-                int index = entry.key;
-                var set = entry.value;
-                TextEditingController repController = TextEditingController();
-                repController.text =
-                    set['reps'] == 0 ? "" : set['reps'].toString();
-                repController.selection =
-                    TextSelection.collapsed(offset: repController.text.length);
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: SizedBox(
-                    width: 60,
-                    child: Stack(
-                      children: [
-                        MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: Badge(
-                            position: BadgePosition.bottomEnd(),
-                            badgeContent: GestureDetector(
-                              onTap: (() async => {
-                                    await widget.deleteRep(
-                                      id: widget.exercise.id,
-                                      index: index,
-                                    ),
-                                  }),
-                              child: const Icon(
-                                Icons.close,
-                                size: 16,
-                              ),
-                            ),
-                            child: TextField(
-                              autofocus: true,
-                              onChanged: (String newvalue) async => {
-                                await widget.updateRep(
-                                  id: widget.exercise.id,
-                                  index: index,
-                                  newValue: newvalue,
+                direction: Axis.horizontal,
+                spacing: 10,
+                runSpacing: 10,
+                children: widget.exercise['sets']
+                    .asMap()
+                    .entries
+                    .map<Widget>((entry) {
+                  int index = entry.key;
+                  var set = entry.value;
+                  TextEditingController repController = TextEditingController();
+                  repController.text =
+                      set['reps'] == 0 ? "" : set['reps'].toString();
+                  repController.selection = TextSelection.collapsed(
+                      offset: repController.text.length);
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: SizedBox(
+                      width: 60,
+                      child: Stack(
+                        children: [
+                          MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: Badge(
+                              position: BadgePosition.bottomEnd(),
+                              badgeContent: GestureDetector(
+                                onTap: (() async => {
+                                      await deleteRep(
+                                        id: widget.exercise.id,
+                                        index: index,
+                                      ),
+                                    }),
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 16,
                                 ),
-                              },
-                              controller: repController,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: <TextInputFormatter>[
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              maxLength: 4,
-                              cursorColor: Colors.black,
-                              textAlign: TextAlign.center,
-                              decoration: InputDecoration(
-                                floatingLabelAlignment:
-                                    FloatingLabelAlignment.start,
-                                floatingLabelBehavior:
-                                    FloatingLabelBehavior.always,
-                                floatingLabelStyle:
-                                    const TextStyle(color: Colors.white),
-                                border: const OutlineInputBorder(),
-                                focusedBorder: const OutlineInputBorder(),
-                                focusColor: Colors.white,
-                                focusedErrorBorder: const OutlineInputBorder(),
-                                enabledBorder: const OutlineInputBorder(),
-                                labelText: 'Set ${index + 1}',
-                                counterText: '',
+                              ),
+                              child: TextField(
+                                autofocus:
+                                    index == widget.exercise['sets'].length - 1,
+                                onChanged: (String newvalue) async => {
+                                  await updateRep(
+                                    id: widget.exercise.id,
+                                    index: index,
+                                    newValue: newvalue,
+                                  ),
+                                },
+                                controller: repController,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
+                                maxLength: 4,
+                                cursorColor: Colors.black,
+                                textAlign: TextAlign.center,
+                                decoration: InputDecoration(
+                                  floatingLabelAlignment:
+                                      FloatingLabelAlignment.start,
+                                  floatingLabelBehavior:
+                                      FloatingLabelBehavior.always,
+                                  floatingLabelStyle:
+                                      const TextStyle(color: Colors.white),
+                                  border: const OutlineInputBorder(),
+                                  focusedBorder: const OutlineInputBorder(),
+                                  focusColor: Colors.white,
+                                  focusedErrorBorder:
+                                      const OutlineInputBorder(),
+                                  enabledBorder: const OutlineInputBorder(),
+                                  labelText: 'Set ${index + 1}',
+                                  counterText: '',
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        // Positioned(
-                        //   top: 1,
-                        //   right: 0,
-                        //   child: GestureDetector(
-                        //     onTap: (() async => {
-                        //           await deleteRep(
-                        //             id: exercise.id,
-                        //             index: index,
-                        //           ),
-                        //         }),
-                        //     child: const Icon(
-                        //       Icons.close,
-                        //       size: 16,
-                        //     ),
-                        //   ),
-                        // ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
+                  );
+                }).toList()),
           ),
         ),
-        Flexible(
-            child: IconButton(
+        IconButton(
           icon: const Icon(Icons.add),
-          onPressed: () => {widget.addSet(widget.exercise.id)},
-        ))
+          onPressed: () => {addSet(widget.exercise.id)},
+        )
       ],
     );
   }

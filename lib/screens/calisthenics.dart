@@ -35,35 +35,37 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
         appBar: const NavBar(
           color: Colors.blue,
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const NewWorkoutButton(),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  ElevatedButton(
-                      onPressed: () => {selectDate(context)},
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green),
-                      child: Text(
-                        DateFormat('yyyy-MM-dd').format(selectedDate),
-                        style: mediumTextStyle,
-                      ))
-                ],
-              ),
-              CurrentWorkouts(
-                date: selectedDate,
-              )
-            ],
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    NewWorkoutButton(selectedDate),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    ElevatedButton(
+                        onPressed: () => {selectDate(context)},
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green),
+                        child: Text(
+                          DateFormat('yyyy-MM-dd').format(selectedDate),
+                          style: mediumTextStyle,
+                        ))
+                  ],
+                ),
+                CurrentWorkouts(
+                  date: selectedDate,
+                )
+              ],
+            ),
           ),
         )
         // StreamBuilder<QuerySnapshot>(

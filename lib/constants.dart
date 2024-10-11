@@ -5,6 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 const appName = 'SWOLE';
 const appDescription = 'Strengths, Weaknesses, Opportunities and Limitations';
 
+isMobile(context) {
+  return MediaQuery.of(context).size.width < 1300;
+}
+
 //auth
 bool isLoggedIn() {
   return FirebaseAuth.instance.currentUser != null;

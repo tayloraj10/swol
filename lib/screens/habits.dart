@@ -43,10 +43,6 @@ class _HabitsState extends State<Habits> {
     }
   }
 
-  isMobile() {
-    return MediaQuery.of(context).size.width < 1300;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +53,7 @@ class _HabitsState extends State<Habits> {
           padding: const EdgeInsets.all(14),
           child: Column(
             children: [
-              if (isMobile())
+              if (isMobile(context))
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Row(
@@ -107,8 +103,8 @@ class _HabitsState extends State<Habits> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (!isMobile() ||
-                        (isMobile() && selectedPage == HabitsPages.todo))
+                    if (!isMobile(context) ||
+                        (isMobile(context) && selectedPage == HabitsPages.todo))
                       Expanded(
                         child: Column(
                           children: [
@@ -127,8 +123,9 @@ class _HabitsState extends State<Habits> {
                           ],
                         ),
                       ),
-                    if (!isMobile() ||
-                        (isMobile() && selectedPage == HabitsPages.habits))
+                    if (!isMobile(context) ||
+                        (isMobile(context) &&
+                            selectedPage == HabitsPages.habits))
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -169,8 +166,9 @@ class _HabitsState extends State<Habits> {
                           ],
                         ),
                       ),
-                    if (!isMobile() ||
-                        (isMobile() && selectedPage == HabitsPages.stats))
+                    if (!isMobile(context) ||
+                        (isMobile(context) &&
+                            selectedPage == HabitsPages.stats))
                       Expanded(
                         child: Column(
                           children: const [
