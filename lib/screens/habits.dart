@@ -135,6 +135,7 @@ class _HabitsState extends State<Habits> {
                             ),
                             Wrap(
                               alignment: WrapAlignment.center,
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               runSpacing: 10,
                               children: [
                                 const Text(
@@ -144,15 +145,43 @@ class _HabitsState extends State<Habits> {
                                 const SizedBox(
                                   width: 10,
                                 ),
-                                ElevatedButton(
-                                    onPressed: () => {selectDate(context)},
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.green),
-                                    child: Text(
-                                      DateFormat('yyyy-MM-dd')
-                                          .format(selectedDate!),
-                                      style: mediumTextStyle,
-                                    ))
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      tooltip: 'Previous Day',
+                                      padding: EdgeInsets.zero,
+                                      onPressed: () => {
+                                        setState(() {
+                                          selectedDate = selectedDate!.subtract(
+                                              const Duration(days: 1));
+                                        })
+                                      },
+                                      icon: const Icon(Icons.arrow_back_ios),
+                                    ),
+                                    ElevatedButton(
+                                        onPressed: () => {selectDate(context)},
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green,
+                                        ),
+                                        child: Text(
+                                          DateFormat('yyyy-MM-dd')
+                                              .format(selectedDate!),
+                                          style: mediumTextStyle,
+                                        )),
+                                    IconButton(
+                                      tooltip: 'Next Day',
+                                      padding: EdgeInsets.zero,
+                                      onPressed: () => {
+                                        setState(() {
+                                          selectedDate = selectedDate!
+                                              .add(const Duration(days: 1));
+                                        })
+                                      },
+                                      icon: const Icon(Icons.arrow_forward_ios),
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
                             const SizedBox(

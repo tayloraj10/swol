@@ -44,21 +44,50 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
                 const SizedBox(
                   height: 10,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  alignment: WrapAlignment.center,
                   children: [
                     NewWorkoutButton(selectedDate),
                     const SizedBox(
                       width: 20,
                     ),
-                    ElevatedButton(
-                        onPressed: () => {selectDate(context)},
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green),
-                        child: Text(
-                          DateFormat('yyyy-MM-dd').format(selectedDate),
-                          style: mediumTextStyle,
-                        ))
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          tooltip: 'Previous Day',
+                          padding: EdgeInsets.zero,
+                          onPressed: () => {
+                            setState(() {
+                              selectedDate = selectedDate!
+                                  .subtract(const Duration(days: 1));
+                            })
+                          },
+                          icon: const Icon(Icons.arrow_back_ios),
+                        ),
+                        ElevatedButton(
+                            onPressed: () => {selectDate(context)},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                            ),
+                            child: Text(
+                              DateFormat('yyyy-MM-dd').format(selectedDate!),
+                              style: mediumTextStyle,
+                            )),
+                        IconButton(
+                          tooltip: 'Next Day',
+                          padding: EdgeInsets.zero,
+                          onPressed: () => {
+                            setState(() {
+                              selectedDate =
+                                  selectedDate!.add(const Duration(days: 1));
+                            })
+                          },
+                          icon: const Icon(Icons.arrow_forward_ios),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
                 CurrentWorkouts(

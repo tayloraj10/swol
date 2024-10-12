@@ -8,11 +8,14 @@ import 'package:swole/models/models.dart';
 
 class SingleWorkout extends StatefulWidget {
   final QueryDocumentSnapshot<Object?> exercise;
-
+  final bool lastWorkout;
   final bool pastExercise;
 
   const SingleWorkout(
-      {super.key, required this.exercise, this.pastExercise = false});
+      {super.key,
+      required this.exercise,
+      this.pastExercise = false,
+      this.lastWorkout = false});
 
   @override
   State<SingleWorkout> createState() => _SingleWorkoutState();
@@ -158,11 +161,11 @@ class _SingleWorkoutState extends State<SingleWorkout> {
                                     }),
                                 child: const Icon(
                                   Icons.close,
-                                  size: 16,
+                                  size: 20,
                                 ),
                               ),
                               child: TextField(
-                                autofocus:
+                                autofocus: widget.lastWorkout &&
                                     index == widget.exercise['sets'].length - 1,
                                 onChanged: (String newvalue) async => {
                                   await updateRep(

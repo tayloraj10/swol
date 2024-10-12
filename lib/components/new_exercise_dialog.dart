@@ -102,7 +102,7 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
                 return const Text('Error loading exercises');
               }
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return const Text('No exercises found');
+                return const Text('Loading');
               }
               var exercises = snapshot.data!.docs;
 

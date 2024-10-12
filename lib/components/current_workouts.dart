@@ -1,5 +1,6 @@
 import 'package:accordion/accordion.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:swole/components/single_workout.dart';
 import 'package:swole/constants.dart';
@@ -27,6 +28,7 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
               isLessThan: Timestamp.fromDate(
                   DateTime(widget.date.year, widget.date.month, widget.date.day)
                       .add(const Duration(days: 1))))
+          .where('user_id', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
           .snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -60,6 +62,7 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
                       padding: const EdgeInsets.all(11),
                       child: SingleWorkout(
                         exercise: exercise,
+                        lastWorkout: index == data.docs.length - 1,
                       ),
                     ),
                     content: Column(
