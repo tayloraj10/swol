@@ -51,7 +51,7 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
             itemBuilder: (context, index) {
               final exercise = data.docs[index];
               return Accordion(
-                // disableScrolling: true,
+                disableScrolling: true,
                 paddingListBottom: 0,
                 paddingBetweenClosedSections: 0,
                 paddingBetweenOpenSections: 0,
