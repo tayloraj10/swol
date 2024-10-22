@@ -22,13 +22,15 @@ class SingleWorkout extends StatefulWidget {
 }
 
 class _SingleWorkoutState extends State<SingleWorkout> {
-  addSet(String id) {
+  addSet(String id) async {
     var ref =
         FirebaseFirestore.instance.collection("workouts_calisthenics").doc(id);
 
-    ref.update({
-      'sets': FieldValue.arrayUnion([Rep(reps: 0).toMap()])
-    });
+    DocumentSnapshot docSnapshot = await ref.get();
+    List sets = List.from(docSnapshot.get('sets'));
+    sets.add(Rep(reps: 0).toMap());
+
+    await ref.update({'sets': sets});
   }
 
   updateRep({

@@ -51,11 +51,13 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
             itemBuilder: (context, index) {
               final exercise = data.docs[index];
               return Accordion(
+                // disableScrolling: true,
                 paddingListBottom: 0,
                 paddingBetweenClosedSections: 0,
                 paddingBetweenOpenSections: 0,
                 children: [
                   AccordionSection(
+                    isOpen: true,
                     headerBackgroundColor: Colors.blue,
                     contentBackgroundColor: Colors.blue[700],
                     header: Padding(
@@ -68,13 +70,6 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
                     content: Column(
                       // crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 8.0),
-                          child: Text(
-                            'Past Exercises',
-                            style: largeTextStyle,
-                          ),
-                        ),
                         StreamBuilder<QuerySnapshot>(
                           key: UniqueKey(),
                           stream: FirebaseFirestore.instance
@@ -93,21 +88,31 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
                               return Center(
                                   child: Text('Error: ${snapshot.error}'));
                             } else if (!snapshot.hasData ||
-                                snapshot.data!.docs.isEmpty) {
-                              return const Center(
-                                  child: Text('No Data Available'));
+                                snapshot.data!.docs.length <= 1) {
+                              return const Text('No Previous Exercises');
                             } else {
                               final data = snapshot.data!;
-                              return ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: data.docs.length - 1,
-                                itemBuilder: (context, index) {
-                                  final oldExercise = data.docs[index + 1];
-                                  return SingleWorkout(
-                                    exercise: oldExercise,
-                                    pastExercise: true,
-                                  );
-                                },
+                              return Column(
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsets.only(bottom: 8.0),
+                                    child: Text(
+                                      'Past Exercises',
+                                      style: mediumTextStyle,
+                                    ),
+                                  ),
+                                  ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: data.docs.length - 1,
+                                    itemBuilder: (context, index) {
+                                      final oldExercise = data.docs[index + 1];
+                                      return SingleWorkout(
+                                        exercise: oldExercise,
+                                        pastExercise: true,
+                                      );
+                                    },
+                                  ),
+                                ],
                               );
                             }
                           },
