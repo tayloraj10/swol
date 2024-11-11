@@ -14,6 +14,7 @@ class CalisthenicsHome extends StatefulWidget {
 
 class _CalisthenicsHomeState extends State<CalisthenicsHome> {
   DateTime selectedDate = DateTime.now();
+  bool showPastExercises = false;
 
   Future<void> selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -88,10 +89,29 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
                         ),
                       ],
                     ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Show Past Exercises',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Switch(
+                          activeColor: Colors.blue,
+                          value: showPastExercises,
+                          onChanged: (value) {
+                            setState(() {
+                              showPastExercises = value;
+                            });
+                          },
+                        ),
+                      ],
+                    )
                   ],
                 ),
                 CurrentWorkouts(
                   date: selectedDate,
+                  showPastExercises: showPastExercises,
                 )
               ],
             ),

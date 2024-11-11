@@ -81,140 +81,149 @@ class _SingleWorkoutState extends State<SingleWorkout> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: isMobile(context) ? 100 : null,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (!widget.pastExercise)
-                Text(
-                  widget.exercise['exercise_name'],
-                  style: mediumTextStyle,
-                  textAlign: TextAlign.end,
-                ),
-              if (!widget.pastExercise)
-                Text(
-                  widget.exercise['category'],
-                  style: smallTextStyle,
-                  textAlign: TextAlign.end,
-                ),
-              if (widget.pastExercise)
-                Text(
-                  DateFormat('MM/dd/yy')
-                      .format((widget.exercise['date'] as Timestamp).toDate())
-                      .toString(),
-                  style: smallTextStyle,
-                  textAlign: TextAlign.end,
-                ),
-              if (!widget.pastExercise)
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => {deleteExercise(widget.exercise.id)},
-                )
-            ],
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+      ),
+      margin: EdgeInsets.zero,
+      color: widget.pastExercise ? Colors.grey.shade700 : Colors.grey.shade800,
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: isMobile(context) ? 100 : 200,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (!widget.pastExercise)
+                  Text(
+                    widget.exercise['exercise_name'],
+                    style: mediumTextStyle,
+                    textAlign: TextAlign.end,
+                  ),
+                if (!widget.pastExercise)
+                  Text(
+                    widget.exercise['category'],
+                    style: smallTextStyle,
+                    textAlign: TextAlign.end,
+                  ),
+                if (widget.pastExercise)
+                  Text(
+                    DateFormat('MM/dd/yy')
+                        .format((widget.exercise['date'] as Timestamp).toDate())
+                        .toString(),
+                    style: smallTextStyle,
+                    textAlign: TextAlign.end,
+                  ),
+                if (!widget.pastExercise)
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () => {deleteExercise(widget.exercise.id)},
+                  )
+              ],
+            ),
           ),
-        ),
-        const SizedBox(
-          height: 100,
-          child: VerticalDivider(
-            width: 20,
-            thickness: 3,
-            color: Colors.black,
+          const SizedBox(
+            height: 100,
+            child: VerticalDivider(
+              width: 20,
+              thickness: 3,
+              color: Colors.black,
+            ),
           ),
-        ),
-        Flexible(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Wrap(
-                direction: Axis.horizontal,
-                spacing: 10,
-                runSpacing: 10,
-                children: widget.exercise['sets']
-                    .asMap()
-                    .entries
-                    .map<Widget>((entry) {
-                  int index = entry.key;
-                  var set = entry.value;
-                  TextEditingController repController = TextEditingController();
-                  repController.text =
-                      set['reps'] == 0 ? "" : set['reps'].toString();
-                  repController.selection = TextSelection.collapsed(
-                      offset: repController.text.length);
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: SizedBox(
-                      width: 60,
-                      child: Stack(
-                        children: [
-                          MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: Badge(
-                              position: BadgePosition.bottomEnd(),
-                              badgeContent: GestureDetector(
-                                onTap: (() async => {
-                                      await deleteRep(
-                                        id: widget.exercise.id,
-                                        index: index,
-                                      ),
-                                    }),
-                                child: const Icon(
-                                  Icons.close,
-                                  size: 20,
-                                ),
-                              ),
-                              child: TextField(
-                                autofocus: widget.lastWorkout &&
-                                    index == widget.exercise['sets'].length - 1,
-                                onChanged: (String newvalue) async => {
-                                  await updateRep(
-                                    id: widget.exercise.id,
-                                    index: index,
-                                    newValue: newvalue,
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Wrap(
+                  direction: Axis.horizontal,
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: widget.exercise['sets']
+                      .asMap()
+                      .entries
+                      .map<Widget>((entry) {
+                    int index = entry.key;
+                    var set = entry.value;
+                    TextEditingController repController =
+                        TextEditingController();
+                    repController.text =
+                        set['reps'] == 0 ? "" : set['reps'].toString();
+                    repController.selection = TextSelection.collapsed(
+                        offset: repController.text.length);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: SizedBox(
+                        width: 60,
+                        child: Stack(
+                          children: [
+                            MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: Badge(
+                                position: BadgePosition.bottomEnd(),
+                                badgeContent: GestureDetector(
+                                  onTap: (() async => {
+                                        await deleteRep(
+                                          id: widget.exercise.id,
+                                          index: index,
+                                        ),
+                                      }),
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 20,
                                   ),
-                                },
-                                controller: repController,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.digitsOnly,
-                                ],
-                                maxLength: 4,
-                                cursorColor: Colors.black,
-                                textAlign: TextAlign.center,
-                                decoration: InputDecoration(
-                                  floatingLabelAlignment:
-                                      FloatingLabelAlignment.start,
-                                  floatingLabelBehavior:
-                                      FloatingLabelBehavior.always,
-                                  floatingLabelStyle:
-                                      const TextStyle(color: Colors.white),
-                                  border: const OutlineInputBorder(),
-                                  focusedBorder: const OutlineInputBorder(),
-                                  focusColor: Colors.white,
-                                  focusedErrorBorder:
-                                      const OutlineInputBorder(),
-                                  enabledBorder: const OutlineInputBorder(),
-                                  labelText: 'Set ${index + 1}',
-                                  counterText: '',
+                                ),
+                                child: TextField(
+                                  autofocus: widget.lastWorkout &&
+                                      index ==
+                                          widget.exercise['sets'].length - 1,
+                                  onChanged: (String newvalue) async => {
+                                    await updateRep(
+                                      id: widget.exercise.id,
+                                      index: index,
+                                      newValue: newvalue,
+                                    ),
+                                  },
+                                  controller: repController,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.digitsOnly,
+                                  ],
+                                  maxLength: 4,
+                                  cursorColor: Colors.black,
+                                  textAlign: TextAlign.center,
+                                  decoration: InputDecoration(
+                                    floatingLabelAlignment:
+                                        FloatingLabelAlignment.start,
+                                    floatingLabelBehavior:
+                                        FloatingLabelBehavior.always,
+                                    floatingLabelStyle:
+                                        const TextStyle(color: Colors.white),
+                                    border: const OutlineInputBorder(),
+                                    focusedBorder: const OutlineInputBorder(),
+                                    focusColor: Colors.white,
+                                    focusedErrorBorder:
+                                        const OutlineInputBorder(),
+                                    enabledBorder: const OutlineInputBorder(),
+                                    labelText: 'Set ${index + 1}',
+                                    counterText: '',
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                }).toList()),
+                    );
+                  }).toList()),
+            ),
           ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.add),
-          onPressed: () => {addSet(widget.exercise.id)},
-        )
-      ],
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => {addSet(widget.exercise.id)},
+          ),
+        ],
+      ),
     );
   }
 }
