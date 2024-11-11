@@ -60,7 +60,7 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
                           padding: EdgeInsets.zero,
                           onPressed: () => {
                             setState(() {
-                              selectedDate = selectedDate!
+                              selectedDate = selectedDate
                                   .subtract(const Duration(days: 1));
                             })
                           },
@@ -72,7 +72,7 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
                               backgroundColor: Colors.green,
                             ),
                             child: Text(
-                              DateFormat('yyyy-MM-dd').format(selectedDate!),
+                              DateFormat('yyyy-MM-dd').format(selectedDate),
                               style: mediumTextStyle,
                             )),
                         IconButton(
@@ -81,7 +81,7 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
                           onPressed: () => {
                             setState(() {
                               selectedDate =
-                                  selectedDate!.add(const Duration(days: 1));
+                                  selectedDate.add(const Duration(days: 1));
                             })
                           },
                           icon: const Icon(Icons.arrow_forward_ios),

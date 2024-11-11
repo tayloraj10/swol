@@ -108,18 +108,35 @@ class _WeeklyStatsState extends State<WeeklyStats> {
                     ),
                   )),
             ],
-            rows: getUniqueCategories(weeklyStats).map((category) {
-              return DataRow(cells: [
-                DataCell(Text(
-                  category,
-                  style: smallTextStyle,
+            rows: [
+              DataRow(cells: [
+                const DataCell(Text(
+                  'Total',
+                  style: mediumTextStyle,
                 )),
                 ...weeklyStats.keys.map((week) {
-                  return DataCell(
-                      Text(weeklyStats[week][category]?.toString() ?? '0'));
+                  int total = getUniqueCategories(weeklyStats)
+                      .map((category) => weeklyStats[week][category] ?? 0)
+                      .reduce((a, b) => a + b);
+                  return DataCell(Text(
+                    total.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ));
                 }).toList(),
-              ]);
-            }).toList(),
+              ]),
+              ...getUniqueCategories(weeklyStats).map((category) {
+                return DataRow(cells: [
+                  DataCell(Text(
+                    category,
+                    style: smallTextStyle,
+                  )),
+                  ...weeklyStats.keys.map((week) {
+                    return DataCell(
+                        Text(weeklyStats[week][category]?.toString() ?? '0'));
+                  }).toList(),
+                ]);
+              }).toList(),
+            ],
           ),
         );
       },
