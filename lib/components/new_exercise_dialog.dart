@@ -21,6 +21,7 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
       'exercise_id': exercise['id'],
       'exercise_name': exercise['name'],
       'sets': [],
+      'notes': '',
       'user_id': FirebaseAuth.instance.currentUser!.uid,
     });
   }

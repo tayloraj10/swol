@@ -15,6 +15,12 @@ class CurrentWorkouts extends StatefulWidget {
 }
 
 class _CurrentWorkoutsState extends State<CurrentWorkouts> {
+  num previousTotal = 0;
+
+  updatePreviousTotal(int total) {
+    previousTotal = total;
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -59,6 +65,7 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
                       SingleWorkout(
                         exercise: exercise,
                         lastWorkout: index == data.docs.length - 1,
+                        previousTotal: previousTotal,
                       ),
                       if (widget.showPastExercises)
                         StreamBuilder<QuerySnapshot>(
@@ -68,6 +75,7 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
                               .where('exercise_id',
                                   isEqualTo: exercise['exercise_id'])
                               .orderBy('date', descending: true)
+                              .limit(4)
                               .snapshots(),
                           builder:
                               (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -92,6 +100,13 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
                                     itemCount: data.docs.length - 1,
                                     itemBuilder: (context, index) {
                                       final oldExercise = data.docs[index + 1];
+                                      if (index == 0) {
+                                        int totalReps = 0;
+                                        for (var set in oldExercise['sets']) {
+                                          totalReps += (set['reps'] as int);
+                                        }
+                                        updatePreviousTotal(totalReps);
+                                      }
                                       return SingleWorkout(
                                         exercise: oldExercise,
                                         pastExercise: true,

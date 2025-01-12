@@ -93,7 +93,7 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          'Show Past Exercises',
+                          'Show Past 3 Exercises',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Switch(
