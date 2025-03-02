@@ -6,6 +6,13 @@ class UserChip extends StatelessWidget {
     super.key,
   });
 
+  getUserName() {
+    if (getUser()!.displayName != null) {
+      return getUser()!.displayName;
+    }
+    return getUser()!.email;
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -16,7 +23,7 @@ class UserChip extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Chip(
             label: Text(
-              getUser()!.displayName!,
+              getUserName(),
               style: smallTextStyle,
             ),
           ),
