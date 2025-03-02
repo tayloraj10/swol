@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:swole/components/create_exercise_dialog.dart';
 import 'package:swole/constants.dart';
 
 class NewExerciseDialog extends StatefulWidget {
@@ -13,6 +14,7 @@ class NewExerciseDialog extends StatefulWidget {
 
 class _NewExerciseDialogState extends State<NewExerciseDialog> {
   String? selectedCategory;
+  List categories = [];
 
   createNewWorkout(Map exercise) {
     FirebaseFirestore.instance.collection('workouts_calisthenics').add({
@@ -35,14 +37,34 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
             alignment: WrapAlignment.spaceBetween,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              const Text(
-                'Select an Exercise',
-                style: largeTextStyle,
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  const Text(
+                    'Select an Exercise',
+                    style: largeTextStyle,
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return CreateExerciseDialog(
+                            categories: categories,
+                          );
+                        },
+                      );
+                    },
+                    icon: const Tooltip(
+                      message: "Add a new exercise",
+                      child: Icon(Icons.add),
+                    ),
+                  ),
+                ],
               ),
               FutureBuilder(
                 future: FirebaseFirestore.instance
-                    .collection('exercises_calisthenics')
-                    .orderBy('category')
+                    .collection('categories_calisthenics')
                     .get(),
                 builder: (context, snapshot) {
                   // if (snapshot.connectionState == ConnectionState.waiting) {
@@ -56,8 +78,10 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
                   }
 
                   var exercises = snapshot.data!.docs;
-                  var categories =
-                      exercises.map((doc) => doc['category']).toSet().toList();
+                  if (exercises.isNotEmpty) {
+                    categories =
+                        List<String>.from(exercises.first['categories']);
+                  }
 
                   return DropdownButton<String>(
                     hint: const Text('Select Category'),
@@ -78,27 +102,19 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
               ),
             ],
           ),
-          content: FutureBuilder(
-            future: selectedCategory != null
+          content: StreamBuilder(
+            stream: selectedCategory != null
                 ? FirebaseFirestore.instance
                     .collection('exercises_calisthenics')
                     .where('category', isEqualTo: selectedCategory)
                     .orderBy('name')
-                    .get()
+                    .snapshots()
                 : FirebaseFirestore.instance
                     .collection('exercises_calisthenics')
                     .orderBy('category')
                     .orderBy('name')
-                    .get(),
+                    .snapshots(),
             builder: (context, snapshot) {
-              // if (snapshot.connectionState == ConnectionState.waiting) {
-              //   // return const Center(child: CircularProgressIndicator());
-              //   return SizedBox(
-              //     height: MediaQuery.of(context).size.height * 0.5,
-              //     width: MediaQuery.of(context).size.width * 0.75,
-              //     // child: const Text('Loading Exercises'),
-              //   );
-              // }
               if (snapshot.hasError) {
                 return const Text('Error loading exercises');
               }
