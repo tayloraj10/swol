@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:swole/components/todo_edit_dialog.dart';
 
 class TodoList extends StatefulWidget {
   final DateTime date;
@@ -59,12 +60,10 @@ class _TodoListState extends State<TodoList> {
                 Filter("completed_day",
                     isEqualTo: DateFormat('yyyy-MM-dd').format(widget.date)),
                 Filter("completed_day", isNull: true)))
-            // .orderBy("completed_day")
             .orderBy("created_date")
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
-            // print(snapshot.error);
             return const Text(
               'Something went wrong',
               style: TextStyle(color: Colors.white),
@@ -105,10 +104,11 @@ class _TodoListState extends State<TodoList> {
 
               DocumentSnapshot document = documents[index];
               final data = document.data() as Map<String, dynamic>;
-              TextEditingController controller = TextEditingController();
-              controller.text = data['task'];
+              TextEditingController controller =
+                  TextEditingController(text: data['task']);
               controller.selection =
                   TextSelection.collapsed(offset: controller.text.length);
+              FocusNode focusNode = FocusNode();
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -130,7 +130,26 @@ class _TodoListState extends State<TodoList> {
                     Expanded(
                       child: TextField(
                         controller: controller,
-                        onChanged: (value) => {updateTask(document.id, value)},
+                        onTap: () {
+                          if (MediaQuery.of(context).size.width < 600) {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return TodoEditDialog(
+                                  controller: controller,
+                                  focusNode: focusNode,
+                                  id: document.id,
+                                  updateTask: updateTask,
+                                );
+                              },
+                            );
+                          }
+                        },
+                        onChanged: (value) => {
+                          updateTask(document.id, value),
+                          focusNode.requestFocus()
+                        },
+                        focusNode: focusNode,
                       ),
                     ),
                     Padding(
