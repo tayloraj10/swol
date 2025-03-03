@@ -5,14 +5,14 @@ import 'package:swole/components/nav_bar.dart';
 import 'package:swole/components/new_workout_button.dart';
 import 'package:swole/constants.dart';
 
-class CalisthenicsHome extends StatefulWidget {
-  const CalisthenicsHome({super.key});
+class WeightsHome extends StatefulWidget {
+  const WeightsHome({super.key});
 
   @override
-  State<CalisthenicsHome> createState() => _CalisthenicsHomeState();
+  State<WeightsHome> createState() => _WeightsHomeState();
 }
 
-class _CalisthenicsHomeState extends State<CalisthenicsHome> {
+class _WeightsHomeState extends State<WeightsHome> {
   DateTime selectedDate = DateTime.now();
   bool showPastExercises = false;
 
@@ -34,7 +34,7 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const NavBar(
-        color: Colors.blue,
+        color: Colors.red,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -51,7 +51,7 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
                 children: [
                   NewWorkoutButton(
                     date: selectedDate,
-                    type: 'calisthenics',
+                    type: 'weights',
                   ),
                   const SizedBox(
                     width: 20,
@@ -115,7 +115,7 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
               CurrentWorkouts(
                 date: selectedDate,
                 showPastExercises: showPastExercises,
-                type: 'calisthenics',
+                type: 'weights',
               )
             ],
           ),

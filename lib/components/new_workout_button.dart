@@ -4,7 +4,8 @@ import 'package:swole/constants.dart';
 
 class NewWorkoutButton extends StatefulWidget {
   final DateTime date;
-  const NewWorkoutButton(this.date, {super.key});
+  final String type;
+  const NewWorkoutButton({super.key, required this.type, required this.date});
 
   @override
   State<NewWorkoutButton> createState() => _NewWorkoutButtonState();
@@ -20,7 +21,10 @@ class _NewWorkoutButtonState extends State<NewWorkoutButton> {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
-                      return NewExerciseDialog(widget.date);
+                      return NewExerciseDialog(
+                        date: widget.date,
+                        type: widget.type,
+                      );
                     },
                   ),
                 },

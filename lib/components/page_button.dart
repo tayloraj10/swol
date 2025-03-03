@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:swole/constants.dart';
 import 'package:swole/screens/calisthenics.dart';
 import 'package:swole/screens/habits.dart';
+import 'package:swole/screens/weights.dart';
 
 class PageButton extends StatelessWidget {
   final String text;
@@ -17,7 +18,7 @@ class PageButton extends StatelessWidget {
   static const Map pageMapping = {
     'Habit Tracking': Habits(),
     'Calisthenics': CalisthenicsHome(),
-    'Weight Lifting': Null
+    'Weight Lifting': WeightsHome()
   };
 
   @override
@@ -26,24 +27,16 @@ class PageButton extends StatelessWidget {
       padding: const EdgeInsets.all(10),
       child: ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: color),
-          onPressed: text == 'Weight Lifting'
-              // text != 'Habit Tracking'
-              ? null
-              : () => {
-                    Navigator.push(
-                      // or pushReplacement, if you need that
-                      context,
-                      QuickRoute(
-                        routeName: routeMapping[text],
-                        page: pageMapping[text],
-                      ),
-                    )
-
-                    // Navigator.pushNamed(
-                    //   context,
-                    //   '/calisthenics',
-                    // )
-                  },
+          onPressed: () => {
+                Navigator.push(
+                  // or pushReplacement, if you need that
+                  context,
+                  QuickRoute(
+                    routeName: routeMapping[text],
+                    page: pageMapping[text],
+                  ),
+                )
+              },
           child: Padding(
             padding: const EdgeInsets.all(30),
             child: Column(
@@ -52,15 +45,15 @@ class PageButton extends StatelessWidget {
                   text,
                   style: largeTextStyle,
                 ),
-                if (text == 'Weight Lifting')
-                  // if (text != 'Habit Tracking')
-                  const Padding(
-                    padding: EdgeInsets.only(top: 10),
-                    child: Text(
-                      'Coming Soon',
-                      style: smallTextStyle,
-                    ),
-                  ),
+                // if (text == 'Weight Lifting')
+                //   // if (text != 'Habit Tracking')
+                //   const Padding(
+                //     padding: EdgeInsets.only(top: 10),
+                //     child: Text(
+                //       'Coming Soon',
+                //       style: smallTextStyle,
+                //     ),
+                //   ),
               ],
             ),
           )),

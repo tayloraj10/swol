@@ -7,6 +7,7 @@ app = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 exercises_calisthenics = 'exercises_calisthenics'
+exercises_weights = 'exercises_weights'
 
 # Load Calisthenics Exercises
 
@@ -21,6 +22,24 @@ def add_data(collection_name, data):
         collection_ref.add(data)
     except Exception as e:
         print(f"An error occurred: {e}")
+
+
+def load_workout_exercises():
+    # Load the data.csv file
+    path = 'workout_data.csv'
+    df = pd.read_csv(path)
+
+    # Loop through the DataFrame and add each row to Firestore
+    for index, row in df.iterrows():
+        data = row.to_dict()
+        # print(data)
+
+        fb_data = {'category': data['category'],
+                   'name': data['name'],
+                   }
+
+        add_data(exercises_weights, fb_data)
+load_workout_exercises()
 
 
 def load_calisthenics_exercises():

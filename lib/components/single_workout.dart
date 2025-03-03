@@ -11,10 +11,12 @@ class SingleWorkout extends StatefulWidget {
   final bool lastWorkout;
   final bool pastExercise;
   final num previousTotal;
+  final String type;
 
   const SingleWorkout(
       {super.key,
       required this.exercise,
+      required this.type,
       this.pastExercise = false,
       this.lastWorkout = false,
       this.previousTotal = 0});
@@ -24,9 +26,20 @@ class SingleWorkout extends StatefulWidget {
 }
 
 class _SingleWorkoutState extends State<SingleWorkout> {
+  getCollectionName(String type) {
+    if (type == 'weights') {
+      return 'workouts_weights';
+    } else if (type == 'calisthenics') {
+      return 'workouts_calisthenics';
+    } else {
+      return '';
+    }
+  }
+
   addSet(String id) async {
-    var ref =
-        FirebaseFirestore.instance.collection("workouts_calisthenics").doc(id);
+    var ref = FirebaseFirestore.instance
+        .collection(getCollectionName(widget.type))
+        .doc(id);
 
     DocumentSnapshot docSnapshot = await ref.get();
     List sets = List.from(docSnapshot.get('sets'));
@@ -42,7 +55,7 @@ class _SingleWorkoutState extends State<SingleWorkout> {
   }) async {
     if (newValue != '') {
       DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
-          .collection('workouts_calisthenics')
+          .collection(getCollectionName(widget.type))
           .doc(id)
           .get();
 
@@ -50,7 +63,7 @@ class _SingleWorkoutState extends State<SingleWorkout> {
       sets[index] = Rep(reps: int.tryParse(newValue)!).toMap();
 
       await FirebaseFirestore.instance
-          .collection('workouts_calisthenics')
+          .collection(getCollectionName(widget.type))
           .doc(id)
           .update({'sets': sets});
     }
@@ -58,7 +71,7 @@ class _SingleWorkoutState extends State<SingleWorkout> {
 
   updateNotes({required String id, required String newNote}) async {
     await FirebaseFirestore.instance
-        .collection('workouts_calisthenics')
+        .collection(getCollectionName(widget.type))
         .doc(id)
         .update({'notes': newNote});
   }
@@ -68,7 +81,7 @@ class _SingleWorkoutState extends State<SingleWorkout> {
     required int index,
   }) async {
     DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
-        .collection('workouts_calisthenics')
+        .collection(getCollectionName(widget.type))
         .doc(id)
         .get();
 
@@ -76,14 +89,14 @@ class _SingleWorkoutState extends State<SingleWorkout> {
     sets.removeAt(index);
 
     await FirebaseFirestore.instance
-        .collection('workouts_calisthenics')
+        .collection(getCollectionName(widget.type))
         .doc(id)
         .update({'sets': sets});
   }
 
   deleteExercise(String id) {
     FirebaseFirestore.instance
-        .collection('workouts_calisthenics')
+        .collection(getCollectionName(widget.type))
         .doc(id)
         .delete();
   }

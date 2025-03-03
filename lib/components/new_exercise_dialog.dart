@@ -6,7 +6,8 @@ import 'package:swole/constants.dart';
 
 class NewExerciseDialog extends StatefulWidget {
   final DateTime date;
-  const NewExerciseDialog(this.date, {super.key});
+  final String type;
+  const NewExerciseDialog({super.key, required this.type, required this.date});
 
   @override
   State<NewExerciseDialog> createState() => _NewExerciseDialogState();
@@ -16,8 +17,40 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
   String? selectedCategory;
   List categories = [];
 
+  getWorkoutsCollectionName(String type) {
+    if (type == 'weights') {
+      return 'workouts_weights';
+    } else if (type == 'calisthenics') {
+      return 'workouts_calisthenics';
+    } else {
+      return '';
+    }
+  }
+
+  getExercisesCollectionName(String type) {
+    if (type == 'weights') {
+      return 'exercises_weights';
+    } else if (type == 'calisthenics') {
+      return 'exercises_calisthenics';
+    } else {
+      return '';
+    }
+  }
+
+  getCategoriesCollectionName(String type) {
+    if (type == 'weights') {
+      return 'categories_weights';
+    } else if (type == 'calisthenics') {
+      return 'categories_calisthenics';
+    } else {
+      return '';
+    }
+  }
+
   createNewWorkout(Map exercise) {
-    FirebaseFirestore.instance.collection('workouts_calisthenics').add({
+    FirebaseFirestore.instance
+        .collection(getWorkoutsCollectionName(widget.type))
+        .add({
       'category': exercise['category'],
       'date': widget.date,
       'exercise_id': exercise['id'],
@@ -64,7 +97,7 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
               ),
               FutureBuilder(
                 future: FirebaseFirestore.instance
-                    .collection('categories_calisthenics')
+                    .collection(getCategoriesCollectionName(widget.type))
                     .get(),
                 builder: (context, snapshot) {
                   // if (snapshot.connectionState == ConnectionState.waiting) {
@@ -105,12 +138,12 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
           content: StreamBuilder(
             stream: selectedCategory != null
                 ? FirebaseFirestore.instance
-                    .collection('exercises_calisthenics')
+                    .collection(getExercisesCollectionName(widget.type))
                     .where('category', isEqualTo: selectedCategory)
                     .orderBy('name')
                     .snapshots()
                 : FirebaseFirestore.instance
-                    .collection('exercises_calisthenics')
+                    .collection(getExercisesCollectionName(widget.type))
                     .orderBy('category')
                     .orderBy('name')
                     .snapshots(),

@@ -7,9 +7,13 @@ import 'package:swole/components/single_workout.dart';
 class CurrentWorkouts extends StatefulWidget {
   final DateTime date;
   final bool showPastExercises;
+  final String type;
 
   const CurrentWorkouts(
-      {super.key, required this.date, required this.showPastExercises});
+      {super.key,
+      required this.date,
+      required this.showPastExercises,
+      required this.type});
 
   @override
   State<CurrentWorkouts> createState() => _CurrentWorkoutsState();
@@ -22,12 +26,22 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
     previousTotal = total;
   }
 
+  getStreamName(String type) {
+    if (type == 'weights') {
+      return 'workouts_weights';
+    } else if (type == 'calisthenics') {
+      return 'workouts_calisthenics';
+    } else {
+      return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       key: UniqueKey(),
       stream: FirebaseFirestore.instance
-          .collection('workouts_calisthenics')
+          .collection(getStreamName(widget.type))
           .where('date',
               isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime(
                   widget.date.year, widget.date.month - 1, widget.date.day)))
@@ -90,12 +104,13 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
                               exercise: exercise,
                               lastWorkout: false,
                               previousTotal: previousTotal,
+                              type: widget.type,
                             ),
                             if (widget.showPastExercises)
                               StreamBuilder<QuerySnapshot>(
                                 key: UniqueKey(),
                                 stream: FirebaseFirestore.instance
-                                    .collection('workouts_calisthenics')
+                                    .collection(getStreamName(widget.type))
                                     .where('exercise_id',
                                         isEqualTo: exercise['exercise_id'])
                                     .orderBy('date', descending: true)
@@ -133,6 +148,7 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
                                             return SingleWorkout(
                                               exercise: oldExercise,
                                               pastExercise: true,
+                                              type: widget.type,
                                             );
                                           },
                                         ),

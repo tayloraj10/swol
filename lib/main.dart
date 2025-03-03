@@ -7,6 +7,7 @@ import 'package:swole/screens/home.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swole/screens/loading.dart';
 import 'package:swole/screens/login.dart';
+import 'package:swole/screens/weights.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -61,6 +62,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const HomeScreen(),
         '/login': (context) => const Login(),
         '/calisthenics': (context) => const CalisthenicsHome(),
+        '/weights': (context) => const WeightsHome(),
         '/habits': (context) => const Habits(),
       },
     );
