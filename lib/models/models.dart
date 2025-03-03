@@ -3,7 +3,7 @@ class Workout {
   final String exerciseId;
   final String exerciseName;
   final DateTime date;
-  final List<Rep> sets;
+  final List<Set> sets;
 
   Workout(
       {required this.category,
@@ -13,7 +13,7 @@ class Workout {
       required this.sets});
 }
 
-class Rep {
+class Set {
   final int reps;
   final double weight;
 
@@ -24,5 +24,5 @@ class Rep {
     };
   }
 
-  Rep({required this.reps, this.weight = 0});
+  Set({required this.reps, required this.weight});
 }

@@ -124,8 +124,8 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
                                         child: CircularProgressIndicator());
                                   } else if (snapshot.hasError) {
                                     return Center(
-                                        child:
-                                            Text('Error: ${snapshot.error}'));
+                                        child: SelectableText(
+                                            'Error: ${snapshot.error}'));
                                   } else {
                                     final data = snapshot.data!;
                                     return Column(
@@ -137,18 +137,32 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
                                             final oldExercise =
                                                 data.docs[index + 1];
                                             if (index == 0) {
-                                              int totalReps = 0;
+                                              int total = 0;
                                               for (var set
                                                   in oldExercise['sets']) {
-                                                totalReps +=
-                                                    (set['reps'] as int);
+                                                if (widget.type == 'weights') {
+                                                  total +=
+                                                      (set['weight'] as int) *
+                                                          (set['reps'] as int);
+                                                } else if (widget.type ==
+                                                    'calisthenics') {
+                                                  total += (set['reps'] as int);
+                                                }
                                               }
-                                              updatePreviousTotal(totalReps);
+                                              updatePreviousTotal(total);
                                             }
-                                            return SingleWorkout(
-                                              exercise: oldExercise,
-                                              pastExercise: true,
-                                              type: widget.type,
+                                            if (oldExercise['date']
+                                                .toDate()
+                                                .isBefore(exercise['date']
+                                                    .toDate())) {
+                                              return SingleWorkout(
+                                                exercise: oldExercise,
+                                                pastExercise: true,
+                                                type: widget.type,
+                                              );
+                                            }
+                                            return const SizedBox(
+                                              height: 0,
                                             );
                                           },
                                         ),

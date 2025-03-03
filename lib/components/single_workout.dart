@@ -1,8 +1,7 @@
-import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:swole/components/entry_box.dart';
 import 'package:swole/constants.dart';
 import 'package:swole/models/models.dart';
 
@@ -43,15 +42,16 @@ class _SingleWorkoutState extends State<SingleWorkout> {
 
     DocumentSnapshot docSnapshot = await ref.get();
     List sets = List.from(docSnapshot.get('sets'));
-    sets.add(Rep(reps: 0).toMap());
+    sets.add(Set(reps: 0, weight: 0).toMap());
 
     await ref.update({'sets': sets});
   }
 
-  updateRep({
+  updateRepOrWeight({
     required String id,
     required int index,
     required String newValue,
+    required String type,
   }) async {
     if (newValue != '') {
       DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
@@ -60,7 +60,11 @@ class _SingleWorkoutState extends State<SingleWorkout> {
           .get();
 
       List sets = List.from(docSnapshot.get('sets'));
-      sets[index] = Rep(reps: int.tryParse(newValue)!).toMap();
+      if (type == 'Reps') {
+        sets[index]['reps'] = int.tryParse(newValue)!;
+      } else if (type == 'Weight') {
+        sets[index]['weight'] = int.tryParse(newValue)!;
+      }
 
       await FirebaseFirestore.instance
           .collection(getCollectionName(widget.type))
@@ -101,17 +105,25 @@ class _SingleWorkoutState extends State<SingleWorkout> {
         .delete();
   }
 
-  calculateTotal() {
-    int totalReps = 0;
-    for (var set in widget.exercise['sets']) {
-      totalReps += (set['reps'] as int);
+  calculateTotal(String type) {
+    if (type == 'weights') {
+      int totalVolume = 0;
+      for (var set in widget.exercise['sets']) {
+        totalVolume += (set['weight'] as int) * (set['reps'] as int);
+      }
+      return totalVolume;
+    } else if (type == 'calisthenics') {
+      int totalReps = 0;
+      for (var set in widget.exercise['sets']) {
+        totalReps += (set['reps'] as int);
+      }
+      return totalReps;
     }
-    return totalReps;
   }
 
-  caculateTrend() {
-    if (widget.previousTotal != 0 && calculateTotal() != 0) {
-      num difference = calculateTotal() - widget.previousTotal;
+  caculateTrend(String type) {
+    if (widget.previousTotal != 0 && calculateTotal(type) != 0) {
+      num difference = calculateTotal(type) - widget.previousTotal;
       if (difference > 0) {
         return 1;
       } else if (difference < 0) {
@@ -121,6 +133,14 @@ class _SingleWorkoutState extends State<SingleWorkout> {
       }
     }
     return null;
+  }
+
+  calculateTotalName(String type) {
+    if (type == 'weights') {
+      return 'Total Volume';
+    } else if (type == 'calisthenics') {
+      return 'Total Reps';
+    }
   }
 
   @override
@@ -187,7 +207,7 @@ class _SingleWorkoutState extends State<SingleWorkout> {
                   children: [
                     Wrap(
                         direction: Axis.horizontal,
-                        spacing: 10,
+                        spacing: widget.type == 'weights' ? 25 : 10,
                         runSpacing: 10,
                         children: widget.exercise['sets']
                                 .asMap()
@@ -197,84 +217,46 @@ class _SingleWorkoutState extends State<SingleWorkout> {
                               var set = entry.value;
                               TextEditingController repController =
                                   TextEditingController();
+                              TextEditingController weightController =
+                                  TextEditingController();
                               repController.text = set['reps'] == 0
                                   ? ""
                                   : set['reps'].toString();
                               repController.selection = TextSelection.collapsed(
                                   offset: repController.text.length);
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 4),
-                                child: SizedBox(
-                                  width: 60,
-                                  child: Stack(
-                                    children: [
-                                      MouseRegion(
-                                        cursor: SystemMouseCursors.click,
-                                        child: Badge(
-                                          position: BadgePosition.bottomEnd(),
-                                          badgeContent: GestureDetector(
-                                            onTap: (() async => {
-                                                  await deleteRep(
-                                                    id: widget.exercise.id,
-                                                    index: index,
-                                                  ),
-                                                }),
-                                            child: const Icon(
-                                              Icons.close,
-                                              size: 20,
-                                            ),
-                                          ),
-                                          child: TextField(
-                                            autofocus: widget.lastWorkout &&
-                                                index ==
-                                                    widget.exercise['sets']
-                                                            .length -
-                                                        1,
-                                            onChanged:
-                                                (String newvalue) async => {
-                                              await updateRep(
-                                                id: widget.exercise.id,
-                                                index: index,
-                                                newValue: newvalue,
-                                              ),
-                                            },
-                                            controller: repController,
-                                            keyboardType: TextInputType.number,
-                                            inputFormatters: <
-                                                TextInputFormatter>[
-                                              FilteringTextInputFormatter
-                                                  .digitsOnly,
-                                            ],
-                                            maxLength: 4,
-                                            cursorColor: Colors.black,
-                                            textAlign: TextAlign.center,
-                                            decoration: InputDecoration(
-                                              floatingLabelAlignment:
-                                                  FloatingLabelAlignment.start,
-                                              floatingLabelBehavior:
-                                                  FloatingLabelBehavior.always,
-                                              floatingLabelStyle:
-                                                  const TextStyle(
-                                                      color: Colors.white),
-                                              border:
-                                                  const OutlineInputBorder(),
-                                              focusedBorder:
-                                                  const OutlineInputBorder(),
-                                              focusColor: Colors.white,
-                                              focusedErrorBorder:
-                                                  const OutlineInputBorder(),
-                                              enabledBorder:
-                                                  const OutlineInputBorder(),
-                                              labelText: 'Set ${index + 1}',
-                                              counterText: '',
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                              weightController.text = set['weight'] == 0
+                                  ? ""
+                                  : set['weight'].toString();
+                              weightController.selection =
+                                  TextSelection.collapsed(
+                                      offset: weightController.text.length);
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (widget.type == 'weights') ...[
+                                    EntryBox(
+                                      deleteRep: deleteRep,
+                                      updateValue: updateRepOrWeight,
+                                      index: index,
+                                      exercise: widget.exercise,
+                                      lastWorkout: widget.lastWorkout,
+                                      controller: weightController,
+                                      type: widget.type,
+                                      label: 'Weight',
+                                    ),
+                                    const SizedBox(width: 6),
+                                  ],
+                                  EntryBox(
+                                    deleteRep: deleteRep,
+                                    updateValue: updateRepOrWeight,
+                                    index: index,
+                                    exercise: widget.exercise,
+                                    lastWorkout: widget.lastWorkout,
+                                    controller: repController,
+                                    type: widget.type,
+                                    label: 'Reps',
                                   ),
-                                ),
+                                ],
                               );
                             }).toList() +
                             [
@@ -283,26 +265,27 @@ class _SingleWorkoutState extends State<SingleWorkout> {
                                 onPressed: () => {addSet(widget.exercise.id)},
                               ),
                             ]),
-                    if (calculateTotal() > 0)
+                    if (calculateTotal(widget.type) > 0)
                       Row(
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(top: 20),
-                            child: Text('Total: ${calculateTotal()}',
+                            child: Text(
+                                '${calculateTotalName(widget.type)}: ${calculateTotal(widget.type)}',
                                 style: mediumTextStyle),
                           ),
-                          if (caculateTrend() != null)
+                          if (caculateTrend(widget.type) != null)
                             Padding(
                               padding: const EdgeInsets.only(top: 20, left: 10),
                               child: Icon(
-                                caculateTrend() == 1
+                                caculateTrend(widget.type) == 1
                                     ? Icons.trending_up
-                                    : caculateTrend() == -1
+                                    : caculateTrend(widget.type) == -1
                                         ? Icons.trending_down
                                         : Icons.trending_flat,
-                                color: caculateTrend() == 1
+                                color: caculateTrend(widget.type) == 1
                                     ? Colors.green
-                                    : caculateTrend() == -1
+                                    : caculateTrend(widget.type) == -1
                                         ? Colors.red
                                         : Colors.blue,
                               ),
