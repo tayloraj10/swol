@@ -73,3 +73,13 @@ def clear_calisthenics_exercises():
         exercise.reference.delete()
 
 # clear_calisthenics_exercises()
+
+def remove_base_exercise_property():
+    # Remove the base_exercise property from all documents in exercises_calisthenics
+    collection_ref = db.collection(exercises_calisthenics)
+    exercises = collection_ref.stream()
+
+    for exercise in exercises:
+        exercise.reference.update({'base_exercise': firestore.DELETE_FIELD})
+
+remove_base_exercise_property()
