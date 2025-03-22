@@ -29,7 +29,7 @@ class _NewWorkoutButtonState extends State<NewWorkoutButton> {
                   ),
                 },
             child: const Text(
-              'New Exercise',
+              'Add an Exercise',
               style: mediumTextStyle,
             ))
       ],

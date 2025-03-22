@@ -25,6 +25,14 @@ class SingleWorkout extends StatefulWidget {
 }
 
 class _SingleWorkoutState extends State<SingleWorkout> {
+  List focusExercises = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchFocusExercises();
+  }
+
   getCollectionName(String type) {
     if (type == 'weights') {
       return 'workouts_weights';
@@ -143,11 +151,61 @@ class _SingleWorkoutState extends State<SingleWorkout> {
     }
   }
 
+  fetchFocusExercises() async {
+    var docSnapshot = await FirebaseFirestore.instance
+        .collection('focus_exercises')
+        .doc(getUser()!.uid)
+        .get();
+
+    if (docSnapshot.exists) {
+      Map<String, dynamic>? data = docSnapshot.data();
+      setState(() {
+        focusExercises = data?['exercises'] ?? [];
+      });
+    } else {
+      setState(() {
+        focusExercises = [];
+      });
+    }
+  }
+
+  handleFavorite(String id) async {
+    DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+        .collection('focus_exercises')
+        .doc(getUser()!.uid)
+        .get();
+    Map<String, dynamic>? data = docSnapshot.data() as Map<String, dynamic>?;
+    if (data != null) {
+      if (data['exercises'] != null && data['exercises'].contains(id)) {
+        data['exercises'].remove(id);
+      } else {
+        data['exercises'] = (data['exercises'] ?? [])..add(id);
+      }
+    } else {
+      data = {
+        'exercises': [id]
+      };
+    }
+
+    await FirebaseFirestore.instance
+        .collection('focus_exercises')
+        .doc(getUser()!.uid)
+        .set(data);
+
+    fetchFocusExercises();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
+        side: BorderSide(
+          color: focusExercises.contains(widget.exercise['exercise_id'])
+              ? Colors.yellow
+              : Colors.transparent,
+          width: 3,
+        ),
       ),
       margin: EdgeInsets.zero,
       color: widget.pastExercise ? Colors.grey.shade700 : Colors.grey.shade800,
@@ -183,11 +241,27 @@ class _SingleWorkoutState extends State<SingleWorkout> {
                       style: smallTextStyle,
                       textAlign: TextAlign.end,
                     ),
-                  if (!widget.pastExercise)
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => {deleteExercise(widget.exercise.id)},
-                    )
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (!widget.pastExercise)
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () => {deleteExercise(widget.exercise.id)},
+                        ),
+                      if (!widget.pastExercise)
+                        IconButton(
+                          icon: Icon(
+                            focusExercises
+                                    .contains(widget.exercise['exercise_id'])
+                                ? Icons.favorite
+                                : Icons.favorite_border_outlined,
+                          ),
+                          onPressed: () =>
+                              {handleFavorite(widget.exercise['exercise_id'])},
+                        ),
+                    ],
+                  )
                 ],
               ),
             ),

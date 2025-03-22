@@ -16,6 +16,57 @@ class NewExerciseDialog extends StatefulWidget {
 class _NewExerciseDialogState extends State<NewExerciseDialog> {
   String? selectedCategory;
   List categories = [];
+  List focusExercises = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchFocusExercises();
+  }
+
+  fetchFocusExercises() async {
+    var docSnapshot = await FirebaseFirestore.instance
+        .collection('focus_exercises')
+        .doc(getUser()!.uid)
+        .get();
+
+    if (docSnapshot.exists) {
+      Map<String, dynamic>? data = docSnapshot.data();
+      setState(() {
+        focusExercises = data?['exercises'] ?? [];
+      });
+    } else {
+      setState(() {
+        focusExercises = [];
+      });
+    }
+  }
+
+  handleFavorite(String id) async {
+    DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+        .collection('focus_exercises')
+        .doc(getUser()!.uid)
+        .get();
+    Map<String, dynamic>? data = docSnapshot.data() as Map<String, dynamic>?;
+    if (data != null) {
+      if (data['exercises'] != null && data['exercises'].contains(id)) {
+        data['exercises'].remove(id);
+      } else {
+        data['exercises'] = (data['exercises'] ?? [])..add(id);
+      }
+    } else {
+      data = {
+        'exercises': [id]
+      };
+    }
+
+    await FirebaseFirestore.instance
+        .collection('focus_exercises')
+        .doc(getUser()!.uid)
+        .set(data);
+
+    fetchFocusExercises();
+  }
 
   getWorkoutsCollectionName(String type) {
     if (type == 'weights') {
@@ -218,6 +269,19 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
                                       createNewWorkout(exercise);
                                       Navigator.of(context).pop();
                                     },
+                                  ),
+                                  trailing: IconButton(
+                                    icon: Icon(
+                                      focusExercises.contains(exercise['id'])
+                                          ? Icons.favorite
+                                          : Icons.favorite_border_outlined,
+                                      color: focusExercises
+                                              .contains(exercise['id'])
+                                          ? Colors.yellow
+                                          : null,
+                                    ),
+                                    onPressed: () =>
+                                        {handleFavorite(exercise['id'])},
                                   ),
                                 ),
                                 const Divider(
