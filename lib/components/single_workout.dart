@@ -203,7 +203,17 @@ class _SingleWorkoutState extends State<SingleWorkout> {
         side: BorderSide(
           color: focusExercises.contains(widget.exercise['exercise_id'])
               ? Colors.yellow
-              : Colors.transparent,
+              : ((widget.exercise.data() as Map<String, dynamic>)
+                          .containsKey('date') &&
+                      (widget.exercise['date'] as Timestamp)
+                              .toDate()
+                              .difference(DateTime.now())
+                              .inDays ==
+                          0 &&
+                      (widget.exercise['date'] as Timestamp).toDate().day ==
+                          DateTime.now().day)
+                  ? Colors.white
+                  : Colors.transparent,
           width: 3,
         ),
       ),
@@ -256,6 +266,10 @@ class _SingleWorkoutState extends State<SingleWorkout> {
                                     .contains(widget.exercise['exercise_id'])
                                 ? Icons.favorite
                                 : Icons.favorite_border_outlined,
+                            color: focusExercises
+                                    .contains(widget.exercise['exercise_id'])
+                                ? Colors.yellow
+                                : Colors.white,
                           ),
                           onPressed: () =>
                               {handleFavorite(widget.exercise['exercise_id'])},
