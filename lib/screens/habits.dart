@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:swole/components/date_changer.dart';
 import 'package:swole/components/habit_tracking.dart';
 import 'package:swole/components/nav_bar.dart';
 import 'package:swole/components/todo_list.dart';
@@ -145,43 +145,14 @@ class _HabitsState extends State<Habits> {
                                 const SizedBox(
                                   width: 10,
                                 ),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      tooltip: 'Previous Day',
-                                      padding: EdgeInsets.zero,
-                                      onPressed: () => {
-                                        setState(() {
-                                          selectedDate = selectedDate!.subtract(
-                                              const Duration(days: 1));
-                                        })
-                                      },
-                                      icon: const Icon(Icons.arrow_back_ios),
-                                    ),
-                                    ElevatedButton(
-                                        onPressed: () => {selectDate(context)},
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.green,
-                                        ),
-                                        child: Text(
-                                          DateFormat('yyyy-MM-dd')
-                                              .format(selectedDate!),
-                                          style: mediumTextStyle,
-                                        )),
-                                    IconButton(
-                                      tooltip: 'Next Day',
-                                      padding: EdgeInsets.zero,
-                                      onPressed: () => {
-                                        setState(() {
-                                          selectedDate = selectedDate!
-                                              .add(const Duration(days: 1));
-                                        })
-                                      },
-                                      icon: const Icon(Icons.arrow_forward_ios),
-                                    ),
-                                  ],
-                                ),
+                                DateChanger(
+                                  initialDate: selectedDate!,
+                                  onDateChanged: (newDate) {
+                                    setState(() {
+                                      selectedDate = newDate;
+                                    });
+                                  },
+                                )
                               ],
                             ),
                             const SizedBox(

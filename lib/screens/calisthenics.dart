@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:swole/components/current_workouts.dart';
+import 'package:swole/components/date_changer.dart';
 import 'package:swole/components/nav_bar.dart';
 import 'package:swole/components/new_workout_button.dart';
 import 'package:swole/components/progressions_dialog.dart';
@@ -95,41 +95,13 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
                   const SizedBox(
                     width: 20,
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        tooltip: 'Previous Day',
-                        padding: EdgeInsets.zero,
-                        onPressed: () => {
-                          setState(() {
-                            selectedDate =
-                                selectedDate.subtract(const Duration(days: 1));
-                          })
-                        },
-                        icon: const Icon(Icons.arrow_back_ios),
-                      ),
-                      ElevatedButton(
-                          onPressed: () => {selectDate(context)},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                          ),
-                          child: Text(
-                            DateFormat('yyyy-MM-dd').format(selectedDate),
-                            style: mediumTextStyle,
-                          )),
-                      IconButton(
-                        tooltip: 'Next Day',
-                        padding: EdgeInsets.zero,
-                        onPressed: () => {
-                          setState(() {
-                            selectedDate =
-                                selectedDate.add(const Duration(days: 1));
-                          })
-                        },
-                        icon: const Icon(Icons.arrow_forward_ios),
-                      ),
-                    ],
+                  DateChanger(
+                    initialDate: selectedDate,
+                    onDateChanged: (newDate) {
+                      setState(() {
+                        selectedDate = newDate;
+                      });
+                    },
                   ),
                   Row(
                     mainAxisSize: MainAxisSize.min,
