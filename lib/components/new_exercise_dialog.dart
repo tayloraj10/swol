@@ -220,6 +220,18 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
                 groupedExercises[category]!.add(exerciseData);
               }
 
+              // Sort each category's exercises so favorites come first
+              groupedExercises.forEach((category, exList) {
+                exList.sort((a, b) {
+                  bool aFav = focusExercises.contains(a['id']);
+                  bool bFav = focusExercises.contains(b['id']);
+                  if (aFav == bFav) {
+                    return a['name'].toString().compareTo(b['name'].toString());
+                  }
+                  return bFav ? 1 : -1;
+                });
+              });
+
               // Define a list of colors to use for the categories
               List<Color> categoryColors = [
                 Colors.red,
