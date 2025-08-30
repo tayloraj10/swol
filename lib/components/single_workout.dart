@@ -195,6 +195,17 @@ class _SingleWorkoutState extends State<SingleWorkout> {
     fetchFocusExercises();
   }
 
+  changeDate(DateChangeType type) async {
+    DateTime currentDate = (widget.exercise['date'] as Timestamp).toDate();
+    DateTime newDate = type == DateChangeType.up
+        ? currentDate.add(const Duration(days: 1))
+        : currentDate.subtract(const Duration(days: 1));
+    await FirebaseFirestore.instance
+        .collection(getCollectionName(widget.type))
+        .doc(widget.exercise.id)
+        .update({'date': Timestamp.fromDate(newDate)});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -255,24 +266,55 @@ class _SingleWorkoutState extends State<SingleWorkout> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       if (!widget.pastExercise)
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () => {deleteExercise(widget.exercise.id)},
+                        Tooltip(
+                          message: 'Move date up a day',
+                          child: IconButton(
+                            icon: const Icon(Icons.keyboard_arrow_up),
+                            onPressed: () {
+                              changeDate(DateChangeType.up);
+                            },
+                          ),
                         ),
                       if (!widget.pastExercise)
-                        IconButton(
-                          icon: Icon(
-                            focusExercises
-                                    .contains(widget.exercise['exercise_id'])
-                                ? Icons.favorite
-                                : Icons.favorite_border_outlined,
-                            color: focusExercises
-                                    .contains(widget.exercise['exercise_id'])
-                                ? Colors.yellow
-                                : Colors.white,
+                        Tooltip(
+                          message: 'Move date down a day',
+                          child: IconButton(
+                            icon: const Icon(Icons.keyboard_arrow_down),
+                            onPressed: () {
+                              changeDate(DateChangeType.down);
+                            },
                           ),
-                          onPressed: () =>
-                              {handleFavorite(widget.exercise['exercise_id'])},
+                        ),
+                      if (!widget.pastExercise)
+                        Tooltip(
+                          message: 'Delete exercise',
+                          child: IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () =>
+                                {deleteExercise(widget.exercise.id)},
+                          ),
+                        ),
+                      if (!widget.pastExercise)
+                        Tooltip(
+                          message: focusExercises
+                                  .contains(widget.exercise['exercise_id'])
+                              ? 'Remove from favorites'
+                              : 'Add to favorites',
+                          child: IconButton(
+                            icon: Icon(
+                              focusExercises
+                                      .contains(widget.exercise['exercise_id'])
+                                  ? Icons.favorite
+                                  : Icons.favorite_border_outlined,
+                              color: focusExercises
+                                      .contains(widget.exercise['exercise_id'])
+                                  ? Colors.yellow
+                                  : Colors.white,
+                            ),
+                            onPressed: () => {
+                              handleFavorite(widget.exercise['exercise_id'])
+                            },
+                          ),
                         ),
                     ],
                   )

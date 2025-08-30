@@ -26,3 +26,8 @@ class Set {
 
   Set({required this.reps, required this.weight});
 }
+
+enum DateChangeType {
+  up,
+  down,
+}
