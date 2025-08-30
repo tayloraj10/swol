@@ -89,7 +89,7 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 12, horizontal: 20),
                       child: Text(
-                        '$date - ${DateFormat('E').format(DateFormat('M/dd').parse(date))}',
+                        '$date - ${DateFormat('E').format((exercises.first['date'] as Timestamp).toDate())}',
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
