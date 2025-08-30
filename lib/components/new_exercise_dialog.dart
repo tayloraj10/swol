@@ -106,7 +106,11 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
       'date': widget.date,
       'exercise_id': exercise['id'],
       'exercise_name': exercise['name'],
-      'sets': [],
+      'sets': [
+        {'reps': 0, 'weight': 0},
+        {'reps': 0, 'weight': 0},
+        {'reps': 0, 'weight': 0},
+      ],
       'notes': '',
       'user_id': FirebaseAuth.instance.currentUser!.uid,
     });
