@@ -17,6 +17,7 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
   String? selectedCategory;
   List categories = [];
   List focusExercises = [];
+  String filterText = '';
 
   @override
   void initState() {
@@ -121,72 +122,97 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
     return StatefulBuilder(
       builder: (context, setState) {
         return AlertDialog(
-          title: Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Wrap(
+                alignment: WrapAlignment.spaceBetween,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  const Text(
-                    'Select an Exercise',
-                    style: largeTextStyle,
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return CreateExerciseDialog(
-                            categories: categories,
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      const Text(
+                        'Select an Exercise',
+                        style: largeTextStyle,
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return CreateExerciseDialog(
+                                categories: categories,
+                              );
+                            },
                           );
+                        },
+                        icon: const Tooltip(
+                          message: "Add a new exercise",
+                          child: Icon(Icons.add),
+                        ),
+                      ),
+                    ],
+                  ),
+                  FutureBuilder(
+                    future: FirebaseFirestore.instance
+                        .collection(getCategoriesCollectionName(widget.type))
+                        .get(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return const Text('Error loading categories');
+                      }
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return const Text('');
+                      }
+
+                      var exercises = snapshot.data!.docs;
+                      if (exercises.isNotEmpty) {
+                        categories =
+                            List<String>.from(exercises.first['categories']);
+                      }
+
+                      return DropdownButton<String>(
+                        hint: const Text('Select Category'),
+                        value: selectedCategory,
+                        items: categories
+                            .map<DropdownMenuItem<String>>((category) {
+                          return DropdownMenuItem<String>(
+                            value: category as String,
+                            child: Text(category),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedCategory = newValue;
+                          });
                         },
                       );
                     },
-                    icon: const Tooltip(
-                      message: "Add a new exercise",
-                      child: Icon(Icons.add),
-                    ),
                   ),
                 ],
               ),
-              FutureBuilder(
-                future: FirebaseFirestore.instance
-                    .collection(getCategoriesCollectionName(widget.type))
-                    .get(),
-                builder: (context, snapshot) {
-                  // if (snapshot.connectionState == ConnectionState.waiting) {
-                  //   return const CircularProgressIndicator();
-                  // }
-                  if (snapshot.hasError) {
-                    return const Text('Error loading categories');
-                  }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Text('');
-                  }
-
-                  var exercises = snapshot.data!.docs;
-                  if (exercises.isNotEmpty) {
-                    categories =
-                        List<String>.from(exercises.first['categories']);
-                  }
-
-                  return DropdownButton<String>(
-                    hint: const Text('Select Category'),
-                    value: selectedCategory,
-                    items: categories.map<DropdownMenuItem<String>>((category) {
-                      return DropdownMenuItem<String>(
-                        value: category as String,
-                        child: Text(category),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedCategory = newValue;
-                      });
-                    },
-                  );
-                },
+              Row(
+                children: [
+                  SizedBox(
+                    width: 250,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'Filter',
+                        hintText: 'Type here',
+                        isDense: true,
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          // Store the filter text in a state variable
+                          filterText = value.toLowerCase();
+                        });
+                      },
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -211,9 +237,15 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
               }
               var exercises = snapshot.data!.docs;
 
+              // Filter exercises by filterText
+              var filteredExercises = exercises.where((exercise) {
+                var name = (exercise['name'] ?? '').toString().toLowerCase();
+                return filterText.isEmpty || name.contains(filterText);
+              }).toList();
+
               // Group exercises by category
               Map<String, List<Map<String, dynamic>>> groupedExercises = {};
-              for (var exercise in exercises) {
+              for (var exercise in filteredExercises) {
                 String category = exercise['category'];
                 if (groupedExercises[category] == null) {
                   groupedExercises[category] = [];
