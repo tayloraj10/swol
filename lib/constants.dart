@@ -42,5 +42,5 @@ const mediumTextStyle = TextStyle(
 );
 
 const smallTextStyle = TextStyle(
-  fontSize: 16,
+  fontSize: 14,
 );
