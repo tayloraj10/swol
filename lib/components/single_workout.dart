@@ -262,8 +262,8 @@ class _SingleWorkoutState extends State<SingleWorkout> {
                       style: smallTextStyle,
                       textAlign: TextAlign.end,
                     ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                  Wrap(
+                    alignment: WrapAlignment.end,
                     children: [
                       if (!widget.pastExercise)
                         Tooltip(
@@ -315,7 +315,7 @@ class _SingleWorkoutState extends State<SingleWorkout> {
                               handleFavorite(widget.exercise['exercise_id'])
                             },
                           ),
-                        ),
+                        )
                     ],
                   )
                 ],
