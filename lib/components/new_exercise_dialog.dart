@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:swole/components/create_exercise_dialog.dart';
+import 'package:swole/components/exercise_queue.dart';
 import 'package:swole/constants.dart';
 
 class NewExerciseDialog extends StatefulWidget {
@@ -18,6 +19,7 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
   List categories = [];
   List focusExercises = [];
   String filterText = '';
+  bool loading = true;
 
   @override
   void initState() {
@@ -99,7 +101,7 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
     }
   }
 
-  createNewWorkout(Map exercise) {
+  createNewWorkout(Map exercise, {bool queue = false}) {
     FirebaseFirestore.instance
         .collection(getWorkoutsCollectionName(widget.type))
         .add({
@@ -114,6 +116,7 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
       ],
       'notes': '',
       'user_id': FirebaseAuth.instance.currentUser!.uid,
+      'queue': queue,
     });
   }
 
@@ -175,13 +178,19 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
                       return DropdownButton<String>(
                         hint: const Text('Select Category'),
                         value: selectedCategory,
-                        items: categories
-                            .map<DropdownMenuItem<String>>((category) {
-                          return DropdownMenuItem<String>(
-                            value: category as String,
-                            child: Text(category),
-                          );
-                        }).toList(),
+                        items: [
+                          const DropdownMenuItem<String>(
+                            value: null,
+                            child: Text('All Categories'),
+                          ),
+                          ...categories
+                              .map<DropdownMenuItem<String>>((category) {
+                            return DropdownMenuItem<String>(
+                              value: category as String,
+                              child: Text(category),
+                            );
+                          }).toList(),
+                        ],
                         onChanged: (String? newValue) {
                           setState(() {
                             selectedCategory = newValue;
@@ -216,136 +225,278 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
               ),
             ],
           ),
-          content: StreamBuilder(
-            stream: selectedCategory != null
-                ? FirebaseFirestore.instance
-                    .collection(getExercisesCollectionName(widget.type))
-                    .where('category', isEqualTo: selectedCategory)
-                    .orderBy('name')
-                    .snapshots()
-                : FirebaseFirestore.instance
-                    .collection(getExercisesCollectionName(widget.type))
-                    .orderBy('category')
-                    .orderBy('name')
-                    .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return const Text('Error loading exercises');
-              }
-              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return const Text('Loading');
-              }
-              var exercises = snapshot.data!.docs;
+          content: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.5,
+            width: MediaQuery.of(context).size.width * 0.75,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(
+                  flex: 5,
+                  child: StreamBuilder(
+                    stream: selectedCategory != null
+                        ? FirebaseFirestore.instance
+                            .collection(getExercisesCollectionName(widget.type))
+                            .where('category', isEqualTo: selectedCategory)
+                            .orderBy('name')
+                            .snapshots()
+                        : FirebaseFirestore.instance
+                            .collection(getExercisesCollectionName(widget.type))
+                            .orderBy('category')
+                            .orderBy('name')
+                            .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return const Text('Error loading exercises');
+                      }
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return const Text('Loading');
+                      }
+                      var exercises = snapshot.data!.docs;
 
-              // Filter exercises by filterText
-              var filteredExercises = exercises.where((exercise) {
-                var name = (exercise['name'] ?? '').toString().toLowerCase();
-                return filterText.isEmpty || name.contains(filterText);
-              }).toList();
+                      // Filter exercises by filterText
+                      var filteredExercises = exercises.where((exercise) {
+                        var name =
+                            (exercise['name'] ?? '').toString().toLowerCase();
+                        return filterText.isEmpty || name.contains(filterText);
+                      }).toList();
 
-              // Group exercises by category
-              Map<String, List<Map<String, dynamic>>> groupedExercises = {};
-              for (var exercise in filteredExercises) {
-                String category = exercise['category'];
-                if (groupedExercises[category] == null) {
-                  groupedExercises[category] = [];
-                }
-                var exerciseData = exercise.data();
-                exerciseData['id'] =
-                    exercise.id; // Add the id to the exercise data
-                groupedExercises[category]!.add(exerciseData);
-              }
+                      // Group exercises by category
+                      Map<String, List<Map<String, dynamic>>> groupedExercises =
+                          {};
+                      for (var exercise in filteredExercises) {
+                        String category = exercise['category'];
+                        if (groupedExercises[category] == null) {
+                          groupedExercises[category] = [];
+                        }
+                        var exerciseData = exercise.data();
+                        exerciseData['id'] =
+                            exercise.id; // Add the id to the exercise data
+                        groupedExercises[category]!.add(exerciseData);
+                      }
 
-              // Sort each category's exercises so favorites come first
-              groupedExercises.forEach((category, exList) {
-                exList.sort((a, b) {
-                  bool aFav = focusExercises.contains(a['id']);
-                  bool bFav = focusExercises.contains(b['id']);
-                  if (aFav == bFav) {
-                    return a['name'].toString().compareTo(b['name'].toString());
-                  }
-                  return bFav ? 1 : -1;
-                });
-              });
+                      // Sort each category's exercises so favorites come first
+                      groupedExercises.forEach((category, exList) {
+                        exList.sort((a, b) {
+                          bool aFav = focusExercises.contains(a['id']);
+                          bool bFav = focusExercises.contains(b['id']);
+                          if (aFav == bFav) {
+                            return a['name']
+                                .toString()
+                                .compareTo(b['name'].toString());
+                          }
+                          return bFav ? 1 : -1;
+                        });
+                      });
 
-              // Define a list of colors to use for the categories
-              List<Color> categoryColors = [
-                Colors.red,
-                Colors.green,
-                Colors.blue,
-                Colors.orange,
-                Colors.purple,
-                Colors.teal,
-                Colors.amber,
-                Colors.pink,
-              ];
+                      // Define a list of colors to use for the categories
+                      List<Color> categoryColors = [
+                        Colors.red,
+                        Colors.green,
+                        Colors.blue,
+                        Colors.orange,
+                        Colors.purple,
+                        Colors.teal,
+                        Colors.amber,
+                        Colors.pink,
+                      ];
 
-              return SizedBox(
-                height: MediaQuery.of(context).size.height * 0.5,
-                width: MediaQuery.of(context).size.width * 0.75,
-                child: ListView(
-                  children: groupedExercises.entries.map((entry) {
-                    // Get a color for the category
-                    Color categoryColor = categoryColors[
-                        groupedExercises.keys.toList().indexOf(entry.key) %
-                            categoryColors.length];
-
-                    return Container(
-                      color: categoryColor,
-                      child: Column(
+                      return Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              entry.key,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          Expanded(
+                            flex: 5,
+                            child: ListView(
+                              children: groupedExercises.entries.map((entry) {
+                                // Get a color for the category
+                                Color categoryColor = categoryColors[
+                                    groupedExercises.keys
+                                            .toList()
+                                            .indexOf(entry.key) %
+                                        categoryColors.length];
+
+                                return Container(
+                                  color: categoryColor,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          entry.key,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      ...entry.value.map((exercise) {
+                                        return Column(
+                                          children: [
+                                            ListTile(
+                                              title: Text(exercise['name']),
+                                              leading: Tooltip(
+                                                message:
+                                                    "Add this exercise to your workout",
+                                                child: IconButton(
+                                                  icon: const Icon(Icons.add),
+                                                  onPressed: () {
+                                                    createNewWorkout(exercise);
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                ),
+                                              ),
+                                              trailing: LayoutBuilder(
+                                                builder:
+                                                    (context, constraints) {
+                                                  bool isSmallScreen =
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width <
+                                                          600;
+                                                  if (isSmallScreen) {
+                                                    // Show a single popup menu button on small screens
+                                                    return PopupMenuButton<int>(
+                                                      icon: const Icon(
+                                                          Icons.more_vert),
+                                                      onSelected: (value) {
+                                                        if (value == 0) {
+                                                          handleFavorite(
+                                                              exercise['id']);
+                                                        } else if (value == 1) {
+                                                          createNewWorkout(
+                                                              exercise,
+                                                              queue: true);
+                                                        }
+                                                      },
+                                                      itemBuilder: (context) =>
+                                                          [
+                                                        PopupMenuItem(
+                                                          value: 0,
+                                                          child: Row(
+                                                            children: [
+                                                              Icon(
+                                                                focusExercises.contains(
+                                                                        exercise[
+                                                                            'id'])
+                                                                    ? Icons
+                                                                        .favorite
+                                                                    : Icons
+                                                                        .favorite_border_outlined,
+                                                                color: focusExercises.contains(
+                                                                        exercise[
+                                                                            'id'])
+                                                                    ? Colors
+                                                                        .yellow
+                                                                    : null,
+                                                              ),
+                                                              const SizedBox(
+                                                                  width: 8),
+                                                              Text(focusExercises
+                                                                      .contains(
+                                                                          exercise[
+                                                                              'id'])
+                                                                  ? "Unfavorite"
+                                                                  : "Favorite"),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        PopupMenuItem(
+                                                          value: 1,
+                                                          child: Row(
+                                                            children: const [
+                                                              Icon(Icons.queue),
+                                                              SizedBox(
+                                                                  width: 8),
+                                                              Text(
+                                                                  "Add to queue"),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  } else {
+                                                    // Show all icons on larger screens
+                                                    return IntrinsicWidth(
+                                                      child: Row(
+                                                        children: [
+                                                          Tooltip(
+                                                            message: focusExercises
+                                                                    .contains(
+                                                                        exercise[
+                                                                            'id'])
+                                                                ? "Remove from favorites"
+                                                                : "Add to favorites",
+                                                            child: IconButton(
+                                                              icon: Icon(
+                                                                focusExercises.contains(
+                                                                        exercise[
+                                                                            'id'])
+                                                                    ? Icons
+                                                                        .favorite
+                                                                    : Icons
+                                                                        .favorite_border_outlined,
+                                                                color: focusExercises.contains(
+                                                                        exercise[
+                                                                            'id'])
+                                                                    ? Colors
+                                                                        .yellow
+                                                                    : null,
+                                                              ),
+                                                              onPressed: () =>
+                                                                  handleFavorite(
+                                                                      exercise[
+                                                                          'id']),
+                                                            ),
+                                                          ),
+                                                          Tooltip(
+                                                            message:
+                                                                "Add this to your workout queue",
+                                                            child: IconButton(
+                                                              icon: const Icon(
+                                                                  Icons.queue),
+                                                              onPressed: () {
+                                                                createNewWorkout(
+                                                                    exercise,
+                                                                    queue:
+                                                                        true);
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                            const Divider(
+                                              color: Colors.black,
+                                              indent: 20,
+                                            ),
+                                          ],
+                                        );
+                                      }).toList(),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
                             ),
                           ),
-                          ...entry.value.map((exercise) {
-                            return Column(
-                              children: [
-                                ListTile(
-                                  title: Text(exercise['name']),
-                                  leading: IconButton(
-                                    icon: const Icon(Icons.add),
-                                    onPressed: () {
-                                      createNewWorkout(exercise);
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                  trailing: IconButton(
-                                    icon: Icon(
-                                      focusExercises.contains(exercise['id'])
-                                          ? Icons.favorite
-                                          : Icons.favorite_border_outlined,
-                                      color: focusExercises
-                                              .contains(exercise['id'])
-                                          ? Colors.yellow
-                                          : null,
-                                    ),
-                                    onPressed: () =>
-                                        {handleFavorite(exercise['id'])},
-                                  ),
-                                ),
-                                const Divider(
-                                  color: Colors.black,
-                                  indent: 20,
-                                ),
-                              ],
-                            );
-                          }).toList(),
+                          // Only show ExerciseQueue on large screens and after loading
+                          if (MediaQuery.of(context).size.width > 900)
+                            Flexible(
+                              child: ExerciseQueue(type: widget.type),
+                            ),
                         ],
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    },
+                  ),
                 ),
-              );
-            },
+              ],
+            ),
           ),
           actions: <Widget>[
             TextButton(

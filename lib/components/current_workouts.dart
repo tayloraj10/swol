@@ -46,6 +46,7 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
               isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime(
                   widget.date.year, widget.date.month - 1, widget.date.day)))
           .where('user_id', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .where('queue', isEqualTo: false)
           .orderBy('date', descending: true)
           .snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
