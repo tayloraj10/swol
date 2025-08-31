@@ -39,6 +39,8 @@ def load_workout_exercises():
                    }
 
         add_data(exercises_weights, fb_data)
+
+
 load_workout_exercises()
 
 
@@ -61,6 +63,7 @@ def load_calisthenics_exercises():
 
         add_data(exercises_calisthenics, fb_data)
 
+
 load_calisthenics_exercises()
 
 
@@ -74,6 +77,7 @@ def clear_calisthenics_exercises():
 
 # clear_calisthenics_exercises()
 
+
 def remove_base_exercise_property():
     # Remove the base_exercise property from all documents in exercises_calisthenics
     collection_ref = db.collection(exercises_calisthenics)
@@ -82,4 +86,18 @@ def remove_base_exercise_property():
     for exercise in exercises:
         exercise.reference.update({'base_exercise': firestore.DELETE_FIELD})
 
+
 remove_base_exercise_property()
+
+
+def add_missing_queue_property(collection):
+    # Add the 'queue' property to all documents in exercises_calisthenics
+    collection_ref = db.collection(collection)
+    exercises = collection_ref.stream()
+
+    for exercise in exercises:
+        exercise.reference.update({'queue': False})
+
+
+add_missing_queue_property('workouts_calisthenics')
+add_missing_queue_property('workouts_weights')
