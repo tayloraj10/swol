@@ -359,8 +359,15 @@ class _NewExerciseDialogState extends State<NewExerciseDialog> {
                                                   if (isSmallScreen) {
                                                     // Show a single popup menu button on small screens
                                                     return PopupMenuButton<int>(
-                                                      icon: const Icon(
-                                                          Icons.more_vert),
+                                                      icon: Icon(
+                                                        Icons.more_vert,
+                                                        color: focusExercises
+                                                                .contains(
+                                                                    exercise[
+                                                                        'id'])
+                                                            ? Colors.yellow
+                                                            : null,
+                                                      ),
                                                       onSelected: (value) {
                                                         if (value == 0) {
                                                           handleFavorite(
