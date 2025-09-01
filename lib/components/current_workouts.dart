@@ -77,6 +77,7 @@ class _CurrentWorkoutsState extends State<CurrentWorkouts> {
 
           return Scrollbar(
             child: ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               itemCount: groupedData.keys.length,
               itemBuilder: (context, index) {
