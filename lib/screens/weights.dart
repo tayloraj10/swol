@@ -33,116 +33,117 @@ class _WeightsHomeState extends State<WeightsHome> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const NavBar(
-        color: Colors.red,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const SizedBox(
-              height: 10,
-            ),
-            Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              alignment: WrapAlignment.center,
-              children: [
-                if (MediaQuery.of(context).size.width <= 900)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              content: SizedBox(
-                                width: MediaQuery.of(context).size.width < 600
-                                    ? MediaQuery.of(context).size.width * 0.9
-                                    : MediaQuery.of(context).size.width * 0.3,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.7,
-                                child: const ExerciseQueue(
-                                  type: 'weights',
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                      ),
-                      child: const Text(
-                        'Workout Queue',
-                        style: mediumTextStyle,
-                      ),
-                    ),
-                  ),
-                NewWorkoutButton(
-                  date: selectedDate,
-                  type: 'weights',
-                ),
-                const SizedBox(
-                  width: 20,
-                ),
-                DateChanger(
-                  initialDate: selectedDate,
-                  onDateChanged: (newDate) {
-                    setState(() {
-                      selectedDate = newDate;
-                    });
-                  },
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Show Past 3 Exercises',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Switch(
-                      activeColor: Colors.blue,
-                      value: showPastExercises,
-                      onChanged: (value) {
-                        setState(() {
-                          showPastExercises = value;
-                        });
-                      },
-                    ),
-                  ],
-                )
-              ],
-            ),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return LayoutBuilder(builder: (context, constraints) {
+      return Scaffold(
+        appBar: const NavBar(
+          color: Colors.red,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(
+                height: 10,
+              ),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                alignment: WrapAlignment.center,
                 children: [
-                  Expanded(
-                    flex: 5,
-                    child: SingleChildScrollView(
-                      child: CurrentWorkouts(
-                        date: selectedDate,
-                        showPastExercises: showPastExercises,
-                        type: 'weights',
+                  if (constraints.maxWidth <= 900)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                content: SizedBox(
+                                  width: constraints.maxWidth < 600
+                                      ? constraints.maxWidth * 0.9
+                                      : constraints.maxWidth * 0.3,
+                                  height: constraints.maxHeight * 0.7,
+                                  child: const ExerciseQueue(
+                                    type: 'weights',
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                        ),
+                        child: const Text(
+                          'Workout Queue',
+                          style: mediumTextStyle,
+                        ),
                       ),
                     ),
+                  NewWorkoutButton(
+                    date: selectedDate,
+                    type: 'weights',
                   ),
-                  if (MediaQuery.of(context).size.width > 900)
-                    Flexible(
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height,
-                        child: const ExerciseQueue(type: 'weights'),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  DateChanger(
+                    initialDate: selectedDate,
+                    onDateChanged: (newDate) {
+                      setState(() {
+                        selectedDate = newDate;
+                      });
+                    },
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Show Past 3 Exercises',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    )
+                      Switch(
+                        activeColor: Colors.blue,
+                        value: showPastExercises,
+                        onChanged: (value) {
+                          setState(() {
+                            showPastExercises = value;
+                          });
+                        },
+                      ),
+                    ],
+                  )
                 ],
               ),
-            ),
-          ],
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 5,
+                      child: SingleChildScrollView(
+                        child: CurrentWorkouts(
+                          date: selectedDate,
+                          showPastExercises: showPastExercises,
+                          type: 'weights',
+                        ),
+                      ),
+                    ),
+                    if (constraints.maxWidth > 900)
+                      Flexible(
+                        child: SizedBox(
+                          height: constraints.maxHeight,
+                          child: const ExerciseQueue(type: 'weights'),
+                        ),
+                      )
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

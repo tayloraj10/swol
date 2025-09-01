@@ -50,137 +50,140 @@ class _CalisthenicsHomeState extends State<CalisthenicsHome> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const NavBar(
-        color: Colors.blue,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const SizedBox(
-              height: 10,
-            ),
-            Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              alignment: WrapAlignment.center,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Scaffold(
+          appBar: const NavBar(
+            color: Colors.blue,
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                // Padding(
-                //   padding: const EdgeInsets.only(right: 8),
-                //   child: ElevatedButton(
-                //     onPressed: () async {
-                //       List<Map<String, dynamic>> dataList = await fetchData();
-                //       showDialog(
-                //         context: context,
-                //         builder: (BuildContext context) {
-                //           return ProgressionsDialog(dataList: dataList);
-                //         },
-                //       );
-                //     },
-                //     style: ElevatedButton.styleFrom(
-                //       backgroundColor: Colors.blue,
-                //     ),
-                //     child: const Text(
-                //       'Progressions',
-                //       style: mediumTextStyle,
-                //     ),
-                //   ),
-                // ),
-                if (MediaQuery.of(context).size.width <= 900)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              content: SizedBox(
-                                width: MediaQuery.of(context).size.width < 600
-                                    ? MediaQuery.of(context).size.width * 0.9
-                                    : MediaQuery.of(context).size.width * 0.3,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.7,
-                                child: const ExerciseQueue(
-                                  type: 'calisthenics',
-                                ),
-                              ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    // Padding(
+                    //   padding: const EdgeInsets.only(right: 8),
+                    //   child: ElevatedButton(
+                    //     onPressed: () async {
+                    //       List<Map<String, dynamic>> dataList = await fetchData();
+                    //       showDialog(
+                    //         context: context,
+                    //         builder: (BuildContext context) {
+                    //           return ProgressionsDialog(dataList: dataList);
+                    //         },
+                    //       );
+                    //     },
+                    //     style: ElevatedButton.styleFrom(
+                    //       backgroundColor: Colors.blue,
+                    //     ),
+                    //     child: const Text(
+                    //       'Progressions',
+                    //       style: mediumTextStyle,
+                    //     ),
+                    //   ),
+                    // ),
+                    if (constraints.maxWidth <= 900)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  content: SizedBox(
+                                    width: constraints.maxWidth < 600
+                                        ? constraints.maxWidth * 0.9
+                                        : constraints.maxWidth * 0.3,
+                                    height: constraints.maxHeight * 0.7,
+                                    child: const ExerciseQueue(
+                                      type: 'calisthenics',
+                                    ),
+                                  ),
+                                );
+                              },
                             );
                           },
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                          ),
+                          child: const Text(
+                            'Workout Queue',
+                            style: mediumTextStyle,
+                          ),
+                        ),
                       ),
-                      child: const Text(
-                        'Workout Queue',
-                        style: mediumTextStyle,
-                      ),
+                    NewWorkoutButton(
+                      date: selectedDate,
+                      type: 'calisthenics',
                     ),
-                  ),
-                NewWorkoutButton(
-                  date: selectedDate,
-                  type: 'calisthenics',
-                ),
-                const SizedBox(
-                  width: 20,
-                ),
-                DateChanger(
-                  initialDate: selectedDate,
-                  onDateChanged: (newDate) {
-                    setState(() {
-                      selectedDate = newDate;
-                    });
-                  },
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Show Past 3 Exercises',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    const SizedBox(
+                      width: 20,
                     ),
-                    Switch(
-                      activeColor: Colors.blue,
-                      value: showPastExercises,
-                      onChanged: (value) {
+                    DateChanger(
+                      initialDate: selectedDate,
+                      onDateChanged: (newDate) {
                         setState(() {
-                          showPastExercises = value;
+                          selectedDate = newDate;
                         });
                       },
                     ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Show Past 3 Exercises',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Switch(
+                          activeColor: Colors.blue,
+                          value: showPastExercises,
+                          onChanged: (value) {
+                            setState(() {
+                              showPastExercises = value;
+                            });
+                          },
+                        ),
+                      ],
+                    )
                   ],
-                )
+                ),
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: SingleChildScrollView(
+                          child: CurrentWorkouts(
+                            date: selectedDate,
+                            showPastExercises: showPastExercises,
+                            type: 'calisthenics',
+                          ),
+                        ),
+                      ),
+                      if (constraints.maxWidth > 900)
+                        Flexible(
+                          child: SizedBox(
+                            height: constraints.maxHeight,
+                            child: const ExerciseQueue(type: 'calisthenics'),
+                          ),
+                        )
+                    ],
+                  ),
+                ),
               ],
             ),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 5,
-                    child: SingleChildScrollView(
-                      child: CurrentWorkouts(
-                        date: selectedDate,
-                        showPastExercises: showPastExercises,
-                        type: 'calisthenics',
-                      ),
-                    ),
-                  ),
-                  if (MediaQuery.of(context).size.width > 900)
-                    Flexible(
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height,
-                        child: const ExerciseQueue(type: 'calisthenics'),
-                      ),
-                    )
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
