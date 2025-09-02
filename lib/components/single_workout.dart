@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:swole/components/entry_box.dart';
@@ -206,6 +207,23 @@ class _SingleWorkoutState extends State<SingleWorkout> {
         .update({'date': Timestamp.fromDate(newDate)});
   }
 
+  addToQueue(Map exercise) {
+    FirebaseFirestore.instance.collection(getCollectionName(widget.type)).add({
+      'category': exercise['category'],
+      'date': Timestamp.fromDate(DateTime.now()),
+      'exercise_id': exercise['exercise_id'],
+      'exercise_name': exercise['exercise_name'],
+      'sets': [
+        {'reps': 0, 'weight': 0},
+        {'reps': 0, 'weight': 0},
+        {'reps': 0, 'weight': 0},
+      ],
+      'notes': '',
+      'user_id': FirebaseAuth.instance.currentUser!.uid,
+      'queue': true,
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -263,7 +281,7 @@ class _SingleWorkoutState extends State<SingleWorkout> {
                       textAlign: TextAlign.end,
                     ),
                   Wrap(
-                    alignment: WrapAlignment.end,
+                    alignment: WrapAlignment.center,
                     children: [
                       if (!widget.pastExercise)
                         Tooltip(
@@ -315,7 +333,18 @@ class _SingleWorkoutState extends State<SingleWorkout> {
                               handleFavorite(widget.exercise['exercise_id'])
                             },
                           ),
-                        )
+                        ),
+                      if (!widget.pastExercise)
+                        Tooltip(
+                          message: 'Add to queue',
+                          child: IconButton(
+                            icon: const Icon(Icons.queue),
+                            onPressed: () {
+                              addToQueue(widget.exercise.data()
+                                  as Map<dynamic, dynamic>);
+                            },
+                          ),
+                        ),
                     ],
                   )
                 ],
